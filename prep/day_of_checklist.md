@@ -17,9 +17,9 @@ $src = "$env:USERPROFILE\Desktop\My Folders\My Coding\Python\GitHub\FZJ-Condense
 Copy-Item -Recurse $src "$env:USERPROFILE\Desktop\MONALISA_live"
 ```
 
-Copies in a few seconds — 20.4 MB (one CSV), no venv inside.
+Copies in about two seconds — 18.8 MB (one CSV), no venv inside. Measured 2.3 s for this folder and the fallback together.
 
-### 2. Build the environment inside it (~41 s)
+### 2. Build the environment inside it (~24 s from a warm cache)
 
 ```powershell
 cd "$env:USERPROFILE\Desktop\MONALISA_live"
@@ -62,8 +62,8 @@ or `.git`.
 ### 5. Warm the import cache
 
 The live folder has no `app.py` yet — the whole point is that you build it on
-stage. But the first Streamlit launch pays a **13.6 s** import cost, and you do
-not want that happening cold in front of the room. Warm it now:
+stage. But the first page costs about **22 s** warmed (17 s of imports plus 5 s
+to read the CSV) — and **66.7 s** if the bytecode cache is cold. Warm it now:
 
 ```powershell
 .venv\Scripts\python.exe -c "import streamlit, matplotlib.pyplot, pandas, docx, scipy; print('warm')"
@@ -222,8 +222,9 @@ workflow you cannot check"*.
 4. **The duplication trap will not appear by itself.** Every mean and median is
    immune; only a **sum** doubles, and the GUI has no sums. You must ask *"how
    much rain fell over the campaign?"* or skip it.
-5. **13.6 s first Streamlit launch** with 881 columns. Warm the imports the
-   night before (step 5).
+5. **~22 s to the first page** with 881 columns, and **66.7 s** if the bytecode
+   cache is cold. Warm the imports the night before (step 5) — measured, the
+   difference is 17 s against 67 s.
 6. **`scipy`.** Pinned. If you ever rebuild the environment from anything other
    than `requirements.txt`, check it is present — the correlation panel dies
    without it, and only at the moment that panel renders.

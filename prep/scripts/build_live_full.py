@@ -1,14 +1,20 @@
 """Build live_template/data from the FULL campaign file.
 
-Georgios' decision (2026-09-20): use all the data, not a two-week subset - the
-campaign approved it, and the full file is both more realistic and richer in
-traps.
+Georgios' decisions (2026-09-20): use the real campaign file rather than a
+hand-picked subset - the campaign approved it - but trim it to the window where
+the PTR actually measured, because outside that window there is no VOC data at
+all and 60 % of every ion timeseries would be blank on screen.
 
 What is changed from the original, and nothing else:
   * met columns shifted -1 h (2 rows) to correct the end-of-hour labelling on a
     start-labelled grid. The duplication is deliberately preserved.
   * nothing dropped: all 881 columns are kept, n_ bookkeeping included.
+  * trimmed to the window where PTR data actually exists: 16 Sep - 13 Oct.
+    That window is a property of the ORIGINAL file, not of this script - the
+    master file simply has no VOC data outside it. 28 days, exactly 4 weeks
+    and 4 weekends. Costs the 26 Oct DST transition.
 """
+
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -17,6 +23,7 @@ ROOT = Path(__file__).parents[2]
 SRC = ROOT / "data_original" / "MONALISA_campaign_master_30min.csv"
 OUT = ROOT / "live_template" / "data" / "MONALISA_Paris_2025.csv"
 LAT, LON = 48.85, 2.35
+WIN_LO, WIN_HI = "2025-09-16 00:00", "2025-10-13 23:30"
 
 
 def hdr(x):
@@ -74,6 +81,19 @@ for c in met:
     both = a.notna() & b.notna()
     print(f"  {c:34s} {100 * (a[both] == b[both]).sum() / max(both.sum(), 1):6.2f} %")
 
+# ---- trim to the window where the PTR actually measured -------------------
+keep = ((t >= WIN_LO) & (t <= WIN_HI)).to_numpy()
+df = df.loc[keep].reset_index(drop=True)
+t = pd.to_datetime(df["time"])
+hdr("TRIMMED TO THE PTR WINDOW")
+print(f"  {WIN_LO} .. {WIN_HI}  ->  {len(df)} rows")
+for nm, pre in [("NH4", "NH4_"), ("H3O", "H3O_"), ("gas", "gas_"), ("met", "met_")]:
+    cols = [c for c in df.columns if c.startswith(pre)]
+    print(f"    {nm:4s} {100 * df[cols].notna().any(axis=1).mean():5.1f} % of rows have data")
+days = pd.DatetimeIndex(pd.to_datetime(pd.Series(t.dt.date.unique())))
+print(f"  {len(days)} days: {int((days.weekday < 5).sum())} weekday, "
+      f"{int((days.weekday >= 5).sum())} weekend")
+
 OUT.parent.mkdir(parents=True, exist_ok=True)
 df.to_csv(OUT, index=False)
 print(f"\nwrote {OUT}")
@@ -81,27 +101,12 @@ print(f"  {len(df)} rows x {df.shape[1]} columns, {OUT.stat().st_size / 1e6:.1f}
 print(f"  {t.iloc[0]} .. {t.iloc[-1]}")
 
 # ----------------------------------------------------- traps the full file unlocks
-hdr("NEW TRAP 1 - DST: the campaign spans the CEST -> CET transition")
-print("  EU summer time ended on Sunday 26 October 2025 at 01:00 UTC.")
-print(f"  The campaign runs {t.iloc[0].date()} to {t.iloc[-1].date()}, so the")
-print("  transition is INSIDE the file.")
-try:
-    loc = t.dt.tz_localize("UTC").dt.tz_convert("Europe/Paris")
-    off = loc.dt.utcoffset().dt.total_seconds() / 3600
-    print(f"  UTC offset over the file: {sorted(off.unique())} hours")
-    ch = off.diff().fillna(0) != 0
-    if ch.any():
-        i = int(np.argmax(ch.to_numpy()))
-        print(f"  changes at UTC {t.iloc[i]}  ->  local {loc.iloc[i]}")
-    # the ambiguous local hour
-    naive_local = (t + pd.Timedelta(hours=2)).dt.strftime("%Y-%m-%d %H:%M")
-    print(f"\n  If someone just does t + 2 h for the whole file, every timestamp")
-    print(f"  after 26 Oct is wrong by one hour: {ch.sum()} rows affected -> "
-          f"{(off == 1).sum()} rows are CET (+1), not CEST (+2).")
-    print(f"  A correct tz_convert produces a REPEATED local hour on 26 Oct;")
-    print(f"  a naive +2 h produces none, and silently shifts 10 % of the file.")
-except Exception as exc:                                    # noqa: BLE001
-    print("  (tz check unavailable:", exc, ")")
+hdr("DST - NO LONGER IN THE FILE")
+print("  EU summer time ended Sunday 26 October 2025 at 01:00 UTC.")
+print(f"  This file now ends {t.iloc[-1].date()}, so the transition is OUTSIDE it.")
+print("  The DST trap died with the trim to the PTR window. Kept as a note only:")
+print("  on the untrimmed master a naive t + 2 h mislabelled 285 rows (9.7 %),")
+print("  every one into the wrong hour of day.")
 
 hdr("NEW TRAP 2 - NOX is in ppb while NO and NO2 are in microg/m3")
 g = {c.split(" ")[0]: c for c in df.columns if c.startswith("gas_")}

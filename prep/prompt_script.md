@@ -1,49 +1,44 @@
 # Prompt script — live demo, Thursday 24 Sep 2026, 13:45–15:15
 
-**Design (Georgios, 2026-09-20).** Build the GUI from scratch, live, in front of
-the room. The audience has mostly never seen vibe coding, so **the build itself
-is the content** — watching files appear and a working tool assemble is the
-spectacle. The traps ride along inside it.
+**Framing (Georgios, 2026-09-20): the audit is the point.**
 
-**Data: the full campaign file.** 2,927 rows × 881 columns, 1 Sep – 31 Oct 2025,
-20.4 MB. Met corrected by −1 h; everything else exactly as the campaign
-produced it, `n_` bookkeeping columns included.
+No planted traps. A trial run on 2026-09-20 proved they do not survive — given
+the bare file and no metadata, the tool found the wind-direction circularity,
+the met duplication, the hourly accumulations and the DST straddle **by
+itself**, and wrote a vector mean before anyone asked. Chasing gotchas against
+this model is a losing bet.
 
-**Metadata: almost none.** `live_template/CLAUDE.md` says only that the data are
-unpublished and where the venv is. No units, no instrument, no site
-description, no time zone, no column list. This is deliberate: it is what a real
-file looks like, and **what the tool fails to ask about is the trap**.
+What it cannot do is *sign off* on the choices it makes. That is the lecture.
 
-**Target: 32 min.** Build order is deliberate — a complete working loop (look →
-note → Word file) before anything optional. Correlations are last and droppable.
+> **"It audited this file better than I would have by hand — it found a problem
+> in my own data that I didn't know about. And it still made four decisions on
+> my behalf that only a domain scientist can approve. The expertise didn't
+> become optional. It moved from doing the analysis to signing it off."**
+
+**Data:** `MONALISA_Paris_2025.csv`, **1,344 rows × 881 columns**,
+16 Sep – 13 Oct 2025, 18.8 MB. 28 days, 20 weekday and 8 weekend days. Trimmed
+to the window where the PTR actually measured; met corrected by −1 h; nothing
+else touched.
+
+**Metadata: three lines.** The data are unpublished; the venv is in `.venv`.
+Nothing about units, instrument, site, columns or time zone.
 
 | Segment | Budget | Ends with |
 |---|---|---|
-| A · read and describe | 7 min | the "what did it *not* ask?" pause |
-| B · architecture | 3 min | `ARCHITECTURE.md` on screen |
-| C · the GUI: list + 2 plots | 10 min | working browser, **wind-direction trap live** |
-| D · notes → JSON | 5 min | `notes.json` with the room's words in it |
-| E · Word overview | 4 min | the .docx, provenance section open |
-| F · correlations | 3 min | *drop this first if time is short* |
+| **A · the audit** | **12 min** | its findings on screen, including one you didn't know |
+| B · architecture | 3 min | `ARCHITECTURE.md` |
+| C · the GUI | 8 min | working browser, **the four judgement calls** |
+| D · notes | 5 min | `notes.json` in the room's own words |
+| E · Word overview | 4 min | the .docx, provenance open |
+| F · correlations | 3 min | *drop this first* |
+
+Paste everything from [`gui_prompt.txt`](gui_prompt.txt).
 
 ---
 
-## Before you start (off the clock)
+## Segment A · the audit · 12 min — **this is now the centrepiece**
 
-```powershell
-cd "$env:USERPROFILE\Desktop\MONALISA_live"
-code .
-```
-
-Terminal open, browser ready at `localhost:8501`. **Do not** put `prompts.json`
-in the folder yet — it lists every prompt and gives away the plan. You drop it
-in at segment E.
-
----
-
-## Segment A · read and describe · 7 min
-
-### A1
+### A1 — paste block 1
 
 ```
 There is a CSV in data/. Read it and tell me what is in it: how many rows, what
@@ -52,244 +47,196 @@ present. Tell me anything you cannot determine from the file itself. Do not plot
 anything and do not clean anything yet.
 ```
 
-**What it will do** (tested on an independent run): get 2,927 × 881 right, group
-the columns into `NH4_` / `H3O_` / `gas_` / `met_` / `n_`, notice the units
-embedded in the `gas_`/`met_` names, notice that **the ion columns have no units
-anywhere**, and flag the time zone as undeterminable.
+Let it run. **Do not narrate over it** — let them watch it work. It takes a
+couple of minutes and that is fine; the silence is part of the effect.
 
-### A2 — the pause. **This is the most important 3 minutes of the lecture.**
+### A2 — what it will report
 
-Ask the room, in this order:
+Measured in the trial. It will get the shape right and then volunteer, without
+being asked:
 
-> **1. "What did it ask us for?"**
+| It will find | The actual number |
+|---|---|
+| All 8 met columns are hourly values **duplicated** onto both half-hours | bit-identical in **100 %** of pairs |
+| **Wind direction is circular** and cannot be arithmetically averaged | 36 discrete values, all multiples of 10; 360 used for north, 0 never present |
+| `Sunshine_Duration` reaching **60 min inside a 30-min slot** proves the met values are hourly **accumulations**, not rates | 278 rows exceed 30 |
+| Negative values | 4,248 in `NH4_`, 9,172 in `H3O_`, 27 in `gas_` |
+| Instrument gaps and the duty cycle | `H3O_` speckled with far more gap blocks than `NH4_` |
+| `CH4`/`CH4d` and `CO2`/`CO2d` look like wet/dry pairs | flagged, not investigated |
+| Thin weekend sampling | 20 weekday vs 8 weekend days |
 
-It will have asked about — or flagged as unknowable — the ion units, the time
-zone, and probably what `eBC` is. **Credit that out loud.** This is the honest
-lesson: a good tool tells you what it does not know.
+And it will state plainly what it **cannot** determine: the time zone ("no
+offset or UTC marker anywhere"), the units of all 857 ion columns, what the
+`n_*` counters mean, whether the negatives are real or flags, whether the
+formulas are confirmed identifications, what calibration was applied, whether
+gaps are downtime or removed data, and the site and instrument identity.
 
-> **2. "Now — what did it *not* ask about?"**
+### A3 — ⭐ **the moment.** It found a fault in your own data
 
-This is the real question. Things it will almost certainly *not* raise unless
-prompted:
+It will report that **`n_met` contradicts the met columns**:
 
-- **`met_Wind_Direction` is a circular variable.** It is just "a number in
-  degrees" to the tool. ← *this becomes segment C*
+- **2 rows** have `n_met > 0` but no met values at all
+- **2 rows** have `n_met == 0` but met values present
+- and `n_NH4`, `n_H3O`, `n_gas` are **perfectly consistent** — it is only `n_met`
+
+Both numbers verified independently. **Neither Georgios nor the preparation
+found this** — the tool did, unaided.
+
+> ⚠️ **It may not surface this time.** The trial ran on the *untrimmed* file,
+> where the fault affects 6 + 4 rows. On the trimmed file it is only 2 + 2, a
+> weaker signal, so it may not get mentioned. **Do not build the segment on it.**
+> If it does not come up, raise it yourself — *"here's something it found when I
+> gave it the longer file"* — and the beat still works. If it does come up, it is
+> the best moment in the lecture.
+
+Say so:
+
+> **"I have worked with this file for weeks. I did not know that. It found it in
+> ninety seconds, and it found it by checking a bookkeeping column against the
+> data it is supposed to describe — which is exactly the check none of us
+> bother to do."**
+
+Then the honest question:
+
+> **"So why do I still need you? Hold that thought — we'll answer it in ten
+> minutes."**
+
+### A4 — the pause: what did it *not* tell you?
+
+Two things it did **not** raise in the trial, both real:
+
 - **`gas_NOX` is in ppb while `gas_NO` and `gas_NO2` are in µg/m³.** So
-  `NO + NO2` does not equal `NOX` unless you convert.
-- **The same compound appears twice**, once in each reagent-ion mode: acetone is
-  both `NH4_C3H10NO+` and `H3O_C3H7O+`, with medians of 3,144 and 15,853 cps —
-  a factor of five for the *same molecule*.
-- **The campaign crosses a daylight-saving transition** (26 Oct 2025). Nothing
-  in the file hints at it.
-- **The met columns each hold their value twice.**
+  `NO + NO2` gives 18.25 against a `NOX` of 9.95 — off by 1.8×. Convert
+  (`NO/1.25 + NO2/1.91`) and you get **9.95 against 9.95, r = 1.0000**. The file
+  proves its own answer, and it said nothing about it.
+- **The same compound appears twice**, once per reagent-ion mode: acetone is
+  both `NH4_C3H10NO+` (median 3,144 cps) and `H3O_C3H7O+` (median 15,853 cps).
+  Same molecule, factor of five, r = 0.88.
 
-Do not reveal these. Let them find one or two, then move on — you will hit the
-wind direction in C and can return to the rest if time allows.
-
-> **3. "It said it cannot know the time zone. Does that matter?"**
-
-Yes — everything diurnal depends on it. Park it; it returns in E.
+> **"It told us everything it could see in the numbers. It did not tell us the
+> two things that need chemistry."**
 
 ---
 
 ## Segment B · architecture · 3 min
 
-```
-Before you write any code: write ARCHITECTURE.md describing the tool we are
-about to build. I want a list of series on the left, and on the right two plots
-for whichever series I select - the timeseries, and the mean diurnal cycle split
-into weekday and weekend. Plus a separate panel for correlating two series, a
-way to type notes against each series that get saved to a JSON file, and a
-button that turns those notes into a Word overview document. Keep it short.
-```
+Paste block 2, then block 3. Have **File Explorer visible** — watching
+`ARCHITECTURE.md` appear from nothing is most of the value for an audience that
+has never seen this.
 
-**Why this earns its 3 minutes with this audience:** they have never seen a tool
-plan its own work. Open `ARCHITECTURE.md` on the projector and read two lines of
-it out. Then:
-
-> **"It has now written down what it thinks we asked for. This is the cheapest
-> moment to catch a misunderstanding — and the last easy one."**
+> **"It has written down what it thinks we asked for. Cheapest possible moment
+> to catch a misunderstanding."**
 
 ---
 
-## Segment C · the GUI · 10 min
+## Segment C · the GUI · 8 min
 
-### C1 — **paste block 3 from [`gui_prompt.txt`](gui_prompt.txt)**
-
-The full GUI description lives in `gui_prompt.md` / `gui_prompt.txt` so you can
-copy it in one go. It asks for the filterable left-hand list, the two plots, the
-correlation panel, the notes file and the Word button, and it ends with *"keep
-it minimal — just what I have asked for, no extra features."*
-
-**Do not retype it from memory and do not drop the last line.**
+Paste block 3 (already pasted in B — it builds now).
 
 ```
 .venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-⚠️ **Cold start is 14 s.** Say something while it boots.
+⚠️ **~22 s to first page** (17 s imports + 5 s CSV) even warmed. Talk over it.
 
-### C2 — the audience picks
+### C1 — the audience picks
 
-> **"Pick something to look at. Here is the menu."**
-
-| Option | Filter to | Why it goes somewhere rehearsed |
+| Option | Filter to | Rehearsed outcome |
 |---|---|---|
-| **1. Traffic** ⭐ | `C7H9` (toluene) + `gas_NO` | **The best science on screen.** Weekday peaks at **07:00** (3,831 cps); weekend peaks at **19:00** (2,575). The whole profile inverts between weekday and weekend — morning commute vs Saturday evening. Verified |
-| **2. Wood burning vs traffic** | `eBCwb` + `eBCff` | Different evening behaviour; the ff/wb split is a real result |
-| **3. Weekend effect** | `C6H7` (benzene) + `gas_NO2` | Weekend curves visibly lower — the cleanest science on screen |
-| **4. Meteorology** | family = Meteorology | **Leads straight to the wind-direction trap.** Steer here if nobody picks it |
+| **1. Traffic** ⭐ | `C7H9` (toluene) + `gas_NO` | Weekday peaks 07:00, weekend peaks 19:00 — **the profile inverts**. Best science on screen |
+| **2. Wood vs traffic** | `eBCwb` + `eBCff` | Different evening behaviour; a real result |
+| **3. Weekend effect** | `C6H7` (benzene) + `gas_NO2` | Weekend curves clearly lower |
+| **4. Meteorology** | family = Meteorology | Goes to the wind-direction discussion below |
 
-### C3 — ⚠️ THE CENTREPIECE. Get wind direction on screen
+### C2 — ⭐ **the four judgement calls.** This is where the lecture lands
 
-If the room has not chosen it, choose it yourself:
+Put wind direction on screen, then tell them the tool did something clever:
 
-> **"Let's add the wind — direction tells us where the pollution came from."**
+> **"It averaged this one differently from everything else. It recognised that a
+> compass bearing can't be arithmetically averaged — 350° and 10° average to
+> 180°, due south, when the answer is due north — so it used a vector mean. It
+> worked that out on its own. Did you?"**
 
-Select `met_Wind_Direction (degrees)`. You get a smooth, entirely plausible
-diurnal curve sitting around **171°**, i.e. a southerly wind, with a weekday and
-a weekend line. No error, no warning, nothing to suggest a problem.
+It also quantified it. On this file the two disagree in **all 24 hours**, by
+**53° to 150°**, mean error **96°**. The whole-file mean is **140° (southeast)
+arithmetically against 45° (northeast)** by vector mean — a 95° error, pointing
+at a completely different part of Paris. Worst hour is 01:00: **146° against
+356°**. Verified.
 
-**It is wrong.** Verified on this file:
+Now turn it:
 
-| | value |
-|---|---|
-| naive arithmetic mean of degrees | **171° (south)** |
-| correct vector / circular mean | **220° (southwest)** |
-| worst single hour (15:00) | naive 174° vs true **249°** — off **75°** |
-| mean absolute error across the 24 hours | **49°** |
-| hours wrong by more than 45° | **13 of 24** |
-| observations within 45° of north | 20.3 % |
+> **"It got the hard one right. So here are four more decisions it made, all
+> reasonable, none of which it asked me about."**
 
-Ask:
+| # | What it decided | Why it matters |
+|---|---|---|
+| **1** | **Averaged** the accumulated met variables (precipitation, radiation, sunshine) instead of summing | Your diurnal now reads "mean hourly accumulation", **not a total**. Ask for "daily rainfall" from this and you get the wrong thing |
+| **2** | **Ignored the `n_*` sample counters** — every 30-min bin weighted equally | A bin built from 3 sub-samples counts as much as one built from 30 |
+| **3** | **Did not de-duplicate** the met half-hours before grouping | Harmless for a mean, but it **doubles the apparent sample count**, so any error bar or p-value from it is wrong by √2 |
+| **4** | **No per-day normalisation** — a plain mean over all samples | Days with more valid data **pull the mean harder**. Your "mean diurnal" is not the mean of the days |
 
-> **"That says the wind was southerly. Does anyone believe that number?"**
-
-Then the reveal: **you cannot average a compass bearing.** The mean of 350° and
-10° is 180° — due south — when the true answer is 0°, due north. Every
-observation near north drags the average to the middle of the dial.
-
-Then fix it live:
-
-```
-Wind direction is a circular variable - you cannot take an arithmetic mean of
-degrees, because 350 and 10 average to 180 instead of 0. Use a vector mean
-instead: average the sine and cosine and take the arctangent. Fix the diurnal
-plot and record in the app which averaging method is being used.
-```
-
-**Watch the curve move by 50 degrees.** That is the whole lecture in one plot.
-
-> **"Nothing failed. No error, no warning. The code was right; the physics was
-> wrong. And the only reason we caught it is that somebody in this room knows
-> what a wind rose is."**
-
-Ask the closing question of the segment:
-
-> **"How many other columns in these 881 have a problem like this that we
-> haven't looked for?"**
+> **"Every one of those is defensible. Every one changes the number. It
+> documented all four in its own report — which is more than most papers do.
+> But it cannot decide which is right for *your* science question, and it will
+> never refuse to proceed. That is the job that did not go away."**
 
 ---
 
-## Segment D · notes → JSON · 5 min
+## Segment D · notes · 5 min
 
-```
-Add a way to write a note against whichever series I have selected - who said
-it and what they said - and append it to notes.json on disk the moment I save,
-so restarting the app cannot lose anything. Structure the file as one entry per
-series so I can use it later. Show the notes for the selected series underneath
-the plots.
-```
+Paste the notes block, then **take two or three interpretations from the room
+and type them verbatim.**
 
-Then **collect two or three interpretations from the room and type them in
-verbatim.** Their words, not a tidied version.
+- *"Which of those four decisions would you change, and why?"* ← the best note
+  you will get
+- *"Why does the weekend curve drop but not flatten?"*
+- *"What would you need before this went in a paper?"*
 
-Good ones to ask for:
-
-- *"What should we write down about that wind direction?"* ← the best note in the
-  file, and it is theirs
-- *"Why is the weekend curve lower but not flat?"*
-- *"What would you need to know before you put this in a paper?"*
-
-Show them `notes.json` in the editor. Seeing their own sentence appear as
-structured data lands well with people who have never done this.
+Show them `notes.json`. Seeing their own sentence become structured data lands
+with people who have never done this.
 
 ---
 
 ## Segment E · Word overview · 4 min
 
-Drop the prompt log in first (one paste, prepared in advance):
+Drop the prompt log in first:
 
 ```powershell
 Copy-Item "$env:USERPROFILE\Desktop\My Folders\My Coding\Python\GitHub\FZJ-Condenses-Course-on-AI\prep\prompts_for_report.json" ".\prompts.json"
 ```
 
-```
-Add a button that builds a Word document from notes.json: a section per series
-with its notes and basic statistics, the figures currently on screen, and a
-provenance section filled in automatically - data file and its SHA-256, row and
-column count, date range, time base, time zone, which averaging I used, how
-wind direction was averaged, how missing data were handled, the tool, the model,
-the Python and pandas versions, the timestamp, and the prompts from prompts.json.
-```
+Paste the report block. Open the .docx, scroll to **Provenance**.
 
-Open the .docx on the projector and scroll to **Provenance**. Two rows carry the
-whole lecture:
-
-```
-Wind direction averaging     vector (circular) mean
-Time zone                    not stated in the data file
-```
-
-> **"Two rows. The first one only says 'vector mean' because somebody in this
-> room caught it — an hour ago it said 'arithmetic mean of degrees' and the
-> document would have been just as confident. The second one says we never knew,
-> which is the honest answer, and it is in there because a person asked the
-> question in the first ten minutes.**
+> **"Time zone: not stated in the data file. Wind direction: vector mean.
+> Missing data: excluded pairwise, gaps not filled.**
 >
-> **Everything else in this document is reproducible. Those two rows are the
-> reason it is also *correct* — and neither of them came from the tool."**
+> **This document is honest about what it doesn't know and explicit about every
+> choice it made. That is better provenance than most papers carry. And it is
+> still not enough — because being explicit about a choice is not the same as
+> that choice being right. Somebody with your training has to read those lines
+> and agree with them. That is what you are for."**
 
 ---
 
 ## Segment F · correlations · 3 min · **drop this first**
 
-```
-Add a panel where I pick any two series and see a scatter plot coloured by hour
-of day, with Pearson r, Spearman and n.
-```
-
-Two rehearsed pairs:
-
-| Pair | Result (verified on the full campaign) |
+| Pair | Result (verified) |
 |---|---|
-| `H3O_C6H7+` vs `H3O_C10H17+` | **r = 0.86** overall. High — but **not a shared source**: **0.95 at night** against **0.50 at midday**, and both anticorrelate with wind speed (−0.41 and −0.31). It is shared boundary-layer dilution, not chemistry |
-| `NH4_C3H10NO+` vs `H3O_C3H7O+` | **r = 0.88** — and this is **the same compound measured two ways**, medians 3,144 vs 15,853 cps. A brilliant "what does r even mean here?" moment |
+| `H3O_C6H7+` vs `H3O_C10H17+` | r = **0.86** overall — but **0.95 at night**, **0.50 at midday**, both anticorrelated with wind speed. Dilution, not a shared source |
+| `NH4_C3H10NO+` vs `H3O_C3H7O+` | r = **0.88** — and it is **the same compound measured twice**. What does r even mean here? |
 
 ---
-
-## If something stalls
-
-```powershell
-git -C ..\MONALISA_fallback checkout -q stage-3-notes
-Copy-Item -Force ..\MONALISA_fallback\app.py .
-```
-
-Streamlit reloads on save. Per-segment fallbacks in
-[day_of_checklist.md](day_of_checklist.md).
 
 ## Numbers to know cold
 
 | | |
 |---|---|
-| Wind direction, naive vs true | **171° vs 220°**, worst hour off **75°** |
-| NOX closure | raw `NO+NO2` = 14.3 vs NOX 7.9; converted = **7.92 vs 7.90**, r = 1.0000 |
+| File | 1,344 × 881, 16 Sep – 13 Oct, 20 weekday / 8 weekend days |
+| `n_met` fault | **2** rows `n_met>0` with no data; **2** rows `n_met==0` with data |
+| Wind direction | whole file **140° vs 45°**; all 24 hours off by 53–150°, mean 96°; 36.4 % of obs near north |
+| NOX closure | raw `NO+NO2` 18.25 vs NOX 9.95; converted **9.95 vs 9.95, r = 1.0000** |
 | Acetone, two modes | 3,144 (NH₄⁺) vs 15,853 (H₃O⁺) cps, r = 0.88 |
-| DST | transition at **26 Oct 01:00 UTC**; a naive `+2 h` mislabels **285 rows (9.7 %)** |
-| Days averaged | 45 weekday, 16 weekend |
-| Benzene vs monoterpenes | **0.86 all / 0.95 night / 0.50 midday** |
-| Toluene diurnal | weekday peak **07:00** (3,831 cps); weekend peak **19:00** (2,575) |
-
-> All numbers above are from the **full campaign** file the demo now uses. Earlier
-> drafts of this script quoted values from a two-week subset (0.77 / 0.84 / 0.61)
-> — those are superseded. Do not mix the two sets.
+| Toluene diurnal | weekday peak **07:00**, weekend peak **19:00** |
+| Met duplication | **100 %** of pairs bit-identical, all 8 columns |
+| Sunshine 60 min in a 30-min slot | 278 rows > 30 min |
+| First page load | ~22 s warmed; **66.7 s** if the bytecode cache is cold |

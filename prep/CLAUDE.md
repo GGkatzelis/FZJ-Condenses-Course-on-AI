@@ -6,36 +6,29 @@
 
 ---
 
-## ⚠️ READ FIRST — the design changed on 2026-09-20
+## ⚠️ READ FIRST — current design as of 2026-09-20
 
-The original brief (§1–§7 below, still accurate on the data) assumed a
-trap-hunting demo on a two-week, 22-column subset with a richly documented
-`CLAUDE.md`. **Georgios replaced that design.** The current design is:
+Two redesigns happened on 2026-09-20. Sections 1–7 below are the ORIGINAL brief:
+still accurate on the data, obsolete on the demo. Current state:
 
-| | Was | **Is now** |
-|---|---|---|
-| Point of the demo | watch the AI fall into traps | **watch a GUI get built from nothing** — the audience has never seen vibe coding, so the build *is* the content |
-| Data | 672 rows × 22 cols, 22 Sep – 5 Oct | **full campaign: 2,927 × 881, 1 Sep – 31 Oct, 20.4 MB** |
-| Metadata given to the AI | full units table, eBC warning, instrument, site | **almost none** — three lines saying the data are unpublished and where the venv is |
-| GUI | six tabs | **series list on the left, two plots on the right** (timeseries + weekday/weekend diurnal), correlations subpanel, notes → JSON, Word overview |
-| Centrepiece trap | met duplication → doubled sums | **wind direction averaged as a scalar** (171° vs a true 220°) |
-| Framing | audit the AI | **unchanged: audit the AI.** Still correct, still the strongest line |
+| | Now |
+|---|---|
+| **Point of the demo** | **The audit is the point.** Watch it produce a data-quality audit of an 881-column file in ten minutes, then spend the rest of the lecture checking whether the audit is right. A GUI still gets built live, because the audience has never seen vibe coding. |
+| **Traps** | **Abandoned.** A trial proved they do not survive: given the bare file, the tool found the wind-direction circularity, the met duplication, the hourly accumulations and the DST straddle by itself. Only the NOX unit closure and the two-reagent-mode duplication survived, and neither is worth building on. See `trap_log.md`. |
+| **What replaced them** | **The four judgement calls** the tool made without being asked — documented in its own output, each defensible, each changing the answer, none automatable. `prompt_script.md` C2. |
+| **Data** | **1,344 × 881, 16 Sep – 13 Oct 2025, 18.8 MB.** Trimmed to the window where the PTR actually measured — outside it there is no VOC data at all and 60 % of every ion series would be blank. Met corrected −1 h. Trimming cost the DST transition. |
+| **Metadata given to the AI** | **Three lines**: the data are unpublished, the venv is in `.venv`. Nothing about units, instrument, site, columns or time zone. |
+| **Framing line** | *"It audited this file better than I would have by hand — it found a problem in my own data that I did not know about. And it still made four decisions on my behalf that only a domain scientist can approve."* |
 
-**Why the metadata was stripped:** an independent run proved the AI flags units,
-eBC and the time zone unprompted *because those things were written down for
-it*. Removing the README is not rigging the demo — real files do not come with
-one. What it then fails to ask about is the trap.
+**Authoritative now:** `prompt_script.md`, `gui_prompt.md`/`.txt`,
+`trap_log.md`, `day_of_checklist.md`, `data_verification.md`.
+**Reference only:** `data_dictionary.md` (keep it open on your own screen —
+it is where you look up what an ion column is), `prep/trial_output/` (the
+trial's generated app, as evidence), `case_study_numbers.md` and
+`prep/figures/` (built for the old met-timing slides and an older window —
+check before reusing), `rehearsal_2_comparison.md` (superseded by the trial).
 
-**Still authoritative:** `prompt_script.md`, `trap_log.md`,
-`day_of_checklist.md`, `data_verification.md`, `rehearsal_2_comparison.md`.
-**Superseded:** the figure set in `prep/figures/` was built for slides 7/8/9/18/
-21 of the *old* narrative and the two-week window; the figures are still
-correct, but check they still match the talk before using them.
-`prep/data_dictionary.md` is the rich data description that used to ship to the
-live session. It no longer ships — but keep it open on your own screen during
-the demo, because it is where you look up what `H3O_C9H19O+` actually is.
-
-### Current stage branches in `prep/checkpoints/`
+### Stage branches in `prep/checkpoints/`
 
 ```
 stage-1-architecture   ARCHITECTURE.md, no app
@@ -43,11 +36,21 @@ stage-2-plots          series list + timeseries + weekday/weekend diurnal
 stage-3-notes          + notes appended to notes.json
 stage-4-report         + Word overview with provenance
 stage-5-correlations   + correlation panel
-stage-6-winddir-fix    + vector mean for wind direction  <- the reveal
+stage-6-winddir-fix    + vector mean for wind direction
 ```
 
-Stages 2–5 deliberately carry the **naive** wind mean, because that is what a
-live build writes. Only stage 6 fixes it. All six verified runnable.
+All six verified runnable on the trimmed data.
+
+### Desktop state (built and tested 2026-09-20)
+
+```
+Desktop/MONALISA_live/      <- open THIS on the day. Clean, venv built, warmed.
+Desktop/MONALISA_fallback/  <- sibling, invisible to the session, 6 branches
+```
+
+Copy both: **2.3 s**. Venv from warm cache: **24 s**. Never open the repo itself
+as the demo's working directory — a session there sees a folder called `prep/`
+containing `trap_log.md`, which spoils everything from the filenames alone.
 
 ---
 
@@ -345,7 +348,7 @@ Recommended, and it is what the reference build uses (`prep/reference_build/app.
 
 **What it costs, and why it is acceptable here:**
 
-- **13.6 s first launch** with 881 columns. Mitigated by warming the imports the night before.
+- **~22 s to the first page** with 881 columns (17 s imports + 5 s CSV), and **66.7 s** if the bytecode cache is cold. Mitigated by warming the imports the night before.
 - Reruns the whole script on every interaction — irrelevant at 672 rows, and
   `@st.cache_data` covers the read.
 - Widget state lives in `st.session_state` and is lost on restart. **This is
@@ -360,8 +363,8 @@ report are the same object.
 Originally the plan was to ship a ready-made `.venv`. Abandoned — see
 `trap_log.md`. Copying 381 MB of small files took **4 min 19 s** on this machine
 and Pillow's DLL failed to load at a long destination path. `live_template/` is
-now 20.4 MB (a single CSV, which copies in seconds); building the environment from a warm `uv`
-cache takes **41 s**. That is the day-of procedure.
+now 18.8 MB (a single CSV, which copies in about two seconds); building the environment from a warm `uv`
+cache takes **24 s**. That is the day-of procedure.
 
 ### `scipy` is a hard requirement
 
@@ -377,37 +380,29 @@ scipy kills the correlation tab *at render time*, not at startup. Pinned in
 |---|---|
 | 2026-09-19 | Folder structure created. `.gitignore` written — the repo has a GitHub remote and had no ignore file, so the unpublished CSV was one `git add -A` from being published. Plan of record written. **Task 1:** all claims verified, 8 corrections recorded in `data_verification.md`. **Task 2:** structure built. **Task 3:** `live_template/` built — 672 rows × 22 cols, met shifted −1 h, duplication kept, `n_` dropped, neutral `CLAUDE.md`, pinned `requirements.txt`, leak-scanned clean. **Task 4:** six figures + `case_study_numbers.md` + `figure_numbers.json`. **Task 5:** rehearsal 1 complete (all 5 segments pass, scipy bug found and fixed), 5 checkpoint branches verified runnable, `prompt_script.md` and `trap_log.md` written; rehearsal 2 run independently. **Task 6:** `day_of_checklist.md` written. |
 
-## 10. ⚠️ The premise changed — read `rehearsal_2_comparison.md`
+| 2026-09-20 | **Two redesigns.** (a) Demo rebuilt around building the GUI live on the full campaign file with metadata stripped to three lines. (b) **Trial run proved the traps do not survive** — the tool found the wind circularity, met duplication, accumulations and DST straddle unaided, and wrote a vector mean before being asked. Demo reframed a second time around **the audit and the four judgement calls**. Data trimmed to 16 Sep – 13 Oct (1,344 × 881) because the PTR only measured in that window. `gui_prompt.md`/`.txt` written as copy-paste blocks. Stage branches rebuilt (6, all verified). `prep/rehearsal_1` and `_2` deleted, `_3` renamed `sandbox`, `.gitignore` fixed to match. Desktop `MONALISA_live` and `MONALISA_fallback` built, warmed and verified. Six figures in `prompt_script.md` corrected after re-measuring on the trimmed file. |
 
-An independent session given only the verbatim prompts **caught the met
-duplication and the time zone unprompted, inside segment A**, computed the
-correct 26.7 mm and 9.76 MJ/m²/day, produced the insolation-ceiling argument by
-itself, and volunteered the mixed-units and eBC-is-aerosol problems as well.
+## 10. Superseded sections
 
-**"Watch the AI get it wrong" is not a safe premise for this dataset.** The
-recommended reframe is **"audit the AI"**: keep every prompt, and each time it
-catches something, hand the verification to the room. The lesson is stronger —
-*it was right, and only domain knowledge could establish that*. Slides 7/8/9
-still carry genuine failures because those are analyses of real defaults, not
-live AI output. Full reasoning and three concrete options in
-`rehearsal_2_comparison.md`.
-
-**Georgios needs to choose the framing before Thursday.**
+Section 4 (lecture figures), 5 (rehearsal) and the old "premise changed" note
+described the trap-based design. They are kept for the record. The trial on
+2026-09-20 superseded all of it — read the block at the top of this file and
+then `trap_log.md`.
 
 ## 11. Outstanding
 
-- **Aptos is not installed on this machine** — figures fell back to Calibri. If
-  the slides use Aptos there will be a visible mismatch. Either install Aptos
-  and re-run `prep/scripts/make_figures.py`, or set the slides to Calibri.
-- **Confirm the meaning of `d`** in `gas_CH4d` / `gas_CO2d` (⛔ 3 above) before
-  quoting it.
-- **Record the backup screen recording** after rehearsal 2 — see
+- **Aptos is not installed** on this machine, so `prep/figures/` rendered in
+  Calibri. Those figures were also built for the old narrative and an older
+  data window — re-check them against the talk before reusing, or regenerate
+  with `prep/scripts/make_figures.py`.
+- **Confirm the `d`** in `gas_CH4d` / `gas_CO2d`. The data support "dry mole
+  fraction". The trial noticed the wet/dry pairing unaided but did not resolve
+  it either.
+- **Record the backup video** after walking the demo yourself —
   `day_of_checklist.md` step 6.
-- **Slide 8 numbers: the briefing was right, for its own window.** Every figure
-  Georgios quoted reproduces exactly in the **live** window (22 Sep – 5 Oct):
-  r = 0.771 all / 0.838 night / 0.612 midday, wind speed vs benzene −0.516.
-  The slide figure uses the **6–13 Oct** window instead, which gives 0.91 /
-  0.98 / 0.40 and wind speed −0.34 / −0.31. The figure and its annotations are
-  internally consistent, so nothing needs changing — but **do not mix the two
-  sets of numbers**, and if you say "−0.5" out loud, that is the live-window
-  value, not the one on the slide.
+- **Tell the campaign about the `n_met` fault.** Independent of the lecture:
+  `n_met` disagrees with the met columns it describes (2 + 2 rows on the
+  trimmed file, 6 + 4 on the master), while `n_NH4`, `n_H3O` and `n_gas` are
+  perfectly consistent. Worth a message to whoever assembled the master file.
+- **The `n_met` moment may not fire** on the trimmed file. See the warning in
+  `prompt_script.md` A3.
