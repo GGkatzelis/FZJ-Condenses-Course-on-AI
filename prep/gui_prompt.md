@@ -1,15 +1,31 @@
-# The GUI prompt — copy and paste these
+# The GUI prompts — copy and paste these
 
-Four blocks, in order. Each is written the way you would actually say it out
-loud, so it reads naturally if you narrate while pasting. Everything between the
-fences is what you paste — nothing else.
-
-Plain-text versions with no markdown, for a clean paste, are in
+Six blocks, one per segment, in order. Plain-text versions with no markdown —
+which is what you should actually paste from — are in
 [`gui_prompt.txt`](gui_prompt.txt).
+
+**Build step by step, not in one shot.** Three reasons:
+
+1. One-shot means 3–4 minutes of silence with no partial result if it goes wrong.
+2. **Watching it correctly modify code it wrote ten minutes ago is the moment
+   the penny drops.** This audience half-expects an AI to write code from
+   scratch — that reads as fancy autocomplete. Adding a feature to a 300-line
+   file without breaking it is the part they do not expect.
+3. Each block is a pause where the audience directs the next step, and each maps
+   to a fallback branch.
+
+| Block | Segment | Budget |
+|---|---|---|
+| 1 · the audit | A | 12 min |
+| 2 · the GUI: list + two plots | B | 8 min |
+| 3 · notes | C | 5 min |
+| 4 · the Word report | D | 4 min |
+| 5 · the reveal | E | 3 min |
+| 6 · correlations | F | 3 min — **drop first** |
 
 ---
 
-## 1 · Look at the file first  *(segment A, ~7 min)*
+## Block 1 · the audit
 
 ```
 There is a CSV in data/. Read it and tell me what is in it: how many rows, what
@@ -18,33 +34,27 @@ present. Tell me anything you cannot determine from the file itself. Do not plot
 anything and do not clean anything yet.
 ```
 
-Then **stop and ask the room** what it did *not* ask about. That pause is the
-most valuable three minutes of the lecture — see `prompt_script.md`, A2.
+Then **stop and ask the room what it did *not* ask about.** Expect roughly two
+minutes of silence while it profiles 881 columns — that is the demo working, not
+hanging. Do not fill it. Full staging in `prompt_script.md` A2–A4.
 
 ---
 
-## 2 · Have it plan before it builds  *(segment B, ~3 min)*
+## Block 2 · the GUI
+
+Note the opening line. It replaces the old `ARCHITECTURE.md` segment: same
+catch-the-misunderstanding-early lesson, spoken in thirty seconds, with no
+document that the room cannot yet evaluate.
 
 ```
-Before you write any code, write ARCHITECTURE.md describing the tool we are
-about to build, based on the description I am about to give you. Keep it to one
-page. Then wait for me before writing any code.
-```
+Before you write any code, tell me in one paragraph what you are about to
+build, so I can check you understood me. Then build it.
 
-Paste block 3 immediately after. Open `ARCHITECTURE.md` on the projector and
-read two lines of it aloud — this audience has never seen a tool plan its own
-work, and it is the cheapest moment to catch a misunderstanding.
-
----
-
-## 3 · ⭐ The GUI itself — the main paste  *(segment C, ~10 min)*
-
-```
-I want a small app for browsing this dataset. Here is what it should look like:
+I want a small app for browsing this dataset:
 
 - A list of all the available series down the left-hand side. There are hundreds
-  of columns, so I need to be able to filter that list - both by group and by
-  typing part of a name - rather than scrolling one enormous dropdown.
+  of columns, so I need to filter that list - both by group and by typing part
+  of a name - rather than scrolling one enormous dropdown.
 
 - When I select one or more series (let me pick up to four at once), show me two
   plots on the right:
@@ -55,43 +65,96 @@ I want a small app for browsing this dataset. Here is what it should look like:
 
 - Label the axes properly, including units where the data gives them.
 
-- A separate panel where I can choose any two series and see them plotted
-  against each other, with the correlation coefficient and the number of points.
-
-- A box where I can type a note about whichever series I am currently looking
-  at, together with who said it. Save every note to a JSON file on disk the
-  moment I press save, organised one entry per series, so that restarting the
-  app cannot lose anything. Show the notes for the selected series underneath
-  the plots.
-
-- A button that turns those notes into a Word document: one section per series
-  with its notes and some basic statistics, the plots that are currently on
-  screen, and a provenance section recording which file the data came from, what
-  period it covers, and how it was processed.
-
-Build it with Streamlit. Keep it minimal - just what I have asked for, no extra
-features.
+Build it with Streamlit, in app.py. Keep it minimal - just what I have asked
+for, no extra features.
 ```
 
-> **Why the wording matters.** "Hundreds of columns, so I need to filter"
-> prevents an unusable 880-item dropdown. "Weekdays and weekends drawn
-> separately" is what puts the weekend effect on screen. "The moment I press
-> save" is what gets you an atomic write instead of an in-memory list. "Keep it
-> minimal" is the scope-control clause — an independent run wrote 1,161 lines
-> without it. **Do not drop that last line.**
-
-Then run it:
+> **Why the wording matters.** *"Hundreds of columns, so I need to filter"*
+> prevents an unusable 880-item dropdown. *"Weekdays and weekends drawn
+> separately"* is what puts the weekend effect on screen. **Do not drop the last
+> line** — independent runs wrote 416 and 1,161 lines, and only the constrained
+> ones stayed inside the time budget.
 
 ```
 .venv\Scripts\python.exe -m streamlit run app.py
 ```
 
+⚠️ ~22 s to the first page. Talk over it.
+
 ---
 
-## 4 · Fix the wind direction  *(segment C, the reveal)*
+## Block 3 · notes
 
-Only after someone in the room has questioned the wind-direction curve. See
-`prompt_script.md` C3 for the numbers and the exact staging.
+```
+Add a box where I can type a note about whichever series I am currently looking
+at, together with who said it. Save every note to a JSON file on disk the
+moment I press save, organised one entry per series, so that restarting the app
+cannot lose anything. Show the notes for the selected series underneath the
+plots.
+
+Keep it minimal - no extra features.
+```
+
+*"The moment I press save"* is what gets you an atomic disk write rather than an
+in-memory list. Then collect two or three interpretations from the room and
+**type them in verbatim**, and show them `notes.json` in the editor.
+
+---
+
+## Block 4 · the Word report
+
+Drop the prompt log in **first**, so the provenance section is populated:
+
+```powershell
+Copy-Item "$env:USERPROFILE\Desktop\My Folders\My Coding\Python\GitHub\FZJ-Condenses-Course-on-AI\prep\prompts_for_report.json" ".\prompts.json"
+```
+
+```
+Add a button that turns those notes into a Word document: one section per
+series with its notes and some basic statistics, the plots that are currently
+on screen, and a provenance section recording which file the data came from,
+what period it covers, and how it was processed.
+
+Keep it minimal - no extra features.
+```
+
+Open the .docx and scroll to **Provenance**.
+
+---
+
+## Block 5 · ⭐ the reveal — the finale
+
+```
+We started this hour with one CSV and three lines of text. Write a README.md
+that explains what this tool does, how to run it, and what decisions you made
+while building it.
+```
+
+**Have File Explorer visible.** They watch the tree fill: `app.py`,
+`README.md`, `notes.json`, the `.docx` — from one CSV and three lines of text.
+
+That last clause is doing the real work: it makes the tool **state its own
+judgement calls in writing**, as the closing artifact. Read two of them out
+loud. That is the lecture's thesis, in the tool's own words, on screen, at the
+end.
+
+---
+
+## Block 6 · correlations — **drop this first**
+
+```
+Add a separate panel where I can choose any two series and see them plotted
+against each other, with the correlation coefficient and the number of points.
+
+Keep it minimal - no extra features.
+```
+
+---
+
+## Contingency · if it used a plain mean on wind direction
+
+In the trial it got this right unaided and used a vector mean. If a run does
+not:
 
 ```
 Wind direction is a circular variable - you cannot take an arithmetic mean of
@@ -103,11 +166,9 @@ being used.
 
 ---
 
-## If you want it in one paste instead of four
+## One-paste fallback · only if badly behind
 
-Works, but you lose the architecture beat and the "what did it not ask?" pause,
-and you get one long silent build with no partial result to fall back on. Only
-do this if you are badly behind:
+Loses every pause and gives one long silent build with no partial result.
 
 ```
 Read the CSV in data/, then build a Streamlit app for browsing it. A filterable

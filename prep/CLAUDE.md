@@ -31,7 +31,6 @@ check before reusing), `rehearsal_2_comparison.md` (superseded by the trial).
 ### Stage branches in `prep/checkpoints/`
 
 ```
-stage-1-architecture   ARCHITECTURE.md, no app
 stage-2-plots          series list + timeseries + weekday/weekend diurnal
 stage-3-notes          + notes appended to notes.json
 stage-4-report         + Word overview with provenance
@@ -39,7 +38,8 @@ stage-5-correlations   + correlation panel
 stage-6-winddir-fix    + vector mean for wind direction
 ```
 
-All six verified runnable on the trimmed data.
+All five verified runnable on the trimmed data: 234 -> 249 -> 344 -> 370 lines,
+and only `stage-6` uses the vector mean.
 
 ### Desktop state (built and tested 2026-09-20)
 
@@ -177,7 +177,7 @@ FZJ-Condenses-Course-on-AI/
     day_of_checklist.md
     checkpoints/                        git repo, branches stage-1 ... stage-6
     sandbox/                            runnable copy of the current build
-    reference_build/                    app.py + ARCHITECTURE.md (tracked)
+    reference_build/                    app.py, the finished state (tracked)
     gui_prompt.md / .txt                the prompts to paste, copy-paste ready
     data_dictionary.md                  your own on-stage column reference
     sandbox/                            runnable copy of the current build
@@ -290,7 +290,7 @@ cannot lose them. The report reads the notes from that file.
 - `prep/trap_log.md` — where each trap surfaced (or didn't), what the AI said,
   how long each step took, where anything stalled.
 - `prep/checkpoints/` — git repo of the rehearsal build, branches
-  `stage-1-architecture` ... `stage-6-winddir-fix`, each a working state, plus the command to
+  `stage-2-plots` ... `stage-6-winddir-fix`, each a working state, plus the command to
   switch to each. **If the live build stalls, switch branch instead of waiting.**
 
 **Run the rehearsal twice.** Run 2 starts from scratch with the finished prompt

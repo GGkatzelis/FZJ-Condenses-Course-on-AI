@@ -1,8 +1,8 @@
 """Generate the stage builds for the live demo and commit each to
 prep/checkpoints on its own branch, as a linear history.
 
-Build order follows prompt_script.md:
-  stage-1-architecture  ARCHITECTURE.md, no app yet
+Build order follows prompt_script.md (there is no architecture segment any
+more - block 2 asks for a spoken summary instead of a document):
   stage-2-plots         left list + timeseries + weekday/weekend diurnal
   stage-3-notes         + notes saved to notes.json
   stage-4-report        + Word overview with provenance
@@ -30,7 +30,6 @@ MARK = {"Time series": "# ---- Time series + diurnal ----",
 
 # (branch, sections kept, notes?, circular wind?, message)
 STAGES = [
-    ("stage-1-architecture", [], False, False, "architecture only, no app yet"),
     ("stage-2-plots", ["Time series"], False, False,
      "left-hand series list, timeseries and weekday/weekend diurnal"),
     ("stage-3-notes", ["Time series"], True, False,
@@ -136,7 +135,6 @@ for idx, (branch, keep, with_notes, circular, msg) in enumerate(STAGES):
     for stale in ("app.py", "ARCHITECTURE.md"):
         (CK / stale).unlink(missing_ok=True)
 
-    (CK / "ARCHITECTURE.md").write_text(ARCH, encoding="utf-8")
     if keep:
         (CK / "app.py").write_text(build(keep, with_notes, circular),
                                    encoding="utf-8")

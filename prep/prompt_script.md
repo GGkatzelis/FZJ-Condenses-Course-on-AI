@@ -23,14 +23,25 @@ else touched.
 **Metadata: three lines.** The data are unpublished; the venv is in `.venv`.
 Nothing about units, instrument, site, columns or time zone.
 
-| Segment | Budget | Ends with |
-|---|---|---|
-| **A · the audit** | **12 min** | its findings on screen, including one you didn't know |
-| B · architecture | 3 min | `ARCHITECTURE.md` |
-| C · the GUI | 8 min | working browser, **the four judgement calls** |
-| D · notes | 5 min | `notes.json` in the room's own words |
-| E · Word overview | 4 min | the .docx, provenance open |
-| F · correlations | 3 min | *drop this first* |
+| Segment | Block | Budget | Ends with |
+|---|---|---|---|
+| **A · the audit** | 1 | **12 min** | its findings on screen, including one you didn't know |
+| **B · the GUI** | 2 | 8 min | working browser, **the four judgement calls** |
+| C · notes | 3 | 5 min | `notes.json` in the room's own words |
+| D · Word report | 4 | 4 min | the .docx, provenance open |
+| **E · the reveal** | 5 | 3 min | **README.md + the folder tree — the finale** |
+| F · correlations | 6 | 3 min | *drop this first* |
+
+**Build step by step, one block per segment.** Watching it correctly modify code
+it wrote ten minutes ago is the moment the penny drops for an audience that has
+never vibe-coded — a single big generation reads as fancy autocomplete and gives
+you no partial result if it goes wrong.
+
+There is no longer an `ARCHITECTURE.md` segment. Block 2 opens with *"before you
+write any code, tell me in one paragraph what you are about to build"* — the
+same catch-the-misunderstanding-early lesson, spoken in thirty seconds, without
+a document the room cannot yet evaluate. The structure reveal moved to the end,
+where it is a payoff rather than an abstraction.
 
 Paste everything from [`gui_prompt.txt`](gui_prompt.txt).
 
@@ -118,20 +129,15 @@ Two things it did **not** raise in the trial, both real:
 
 ---
 
-## Segment B · architecture · 3 min
+## Segment B · the GUI · 8 min
 
-Paste block 2, then block 3. Have **File Explorer visible** — watching
-`ARCHITECTURE.md` appear from nothing is most of the value for an audience that
-has never seen this.
+Paste **block 2**. It opens by asking the tool to say what it is about to build,
+before it writes anything:
 
-> **"It has written down what it thinks we asked for. Cheapest possible moment
-> to catch a misunderstanding."**
+> **"Read that back to us. Is that what I asked for? This is the cheapest moment
+> in the whole project to catch a misunderstanding — and the last easy one."**
 
----
-
-## Segment C · the GUI · 8 min
-
-Paste block 3 (already pasted in B — it builds now).
+Then it builds.
 
 ```
 .venv\Scripts\python.exe -m streamlit run app.py
@@ -139,7 +145,7 @@ Paste block 3 (already pasted in B — it builds now).
 
 ⚠️ **~22 s to first page** (17 s imports + 5 s CSV) even warmed. Talk over it.
 
-### C1 — the audience picks
+### B1 — the audience picks
 
 | Option | Filter to | Rehearsed outcome |
 |---|---|---|
@@ -148,7 +154,7 @@ Paste block 3 (already pasted in B — it builds now).
 | **3. Weekend effect** | `C6H7` (benzene) + `gas_NO2` | Weekend curves clearly lower |
 | **4. Meteorology** | family = Meteorology | Goes to the wind-direction discussion below |
 
-### C2 — ⭐ **the four judgement calls.** This is where the lecture lands
+### B2 — ⭐ **the four judgement calls.** This is where the lecture lands
 
 Put wind direction on screen, then tell them the tool did something clever:
 
@@ -182,10 +188,10 @@ Now turn it:
 
 ---
 
-## Segment D · notes · 5 min
+## Segment C · notes · 5 min
 
-Paste the notes block, then **take two or three interpretations from the room
-and type them verbatim.**
+Paste **block 3**, then **take two or three interpretations from the room and
+type them verbatim.**
 
 - *"Which of those four decisions would you change, and why?"* ← the best note
   you will get
@@ -197,7 +203,7 @@ with people who have never done this.
 
 ---
 
-## Segment E · Word overview · 4 min
+## Segment D · Word report · 4 min
 
 Drop the prompt log in first:
 
@@ -205,7 +211,7 @@ Drop the prompt log in first:
 Copy-Item "$env:USERPROFILE\Desktop\My Folders\My Coding\Python\GitHub\FZJ-Condenses-Course-on-AI\prep\prompts_for_report.json" ".\prompts.json"
 ```
 
-Paste the report block. Open the .docx, scroll to **Provenance**.
+Paste **block 4**. Open the .docx, scroll to **Provenance**.
 
 > **"Time zone: not stated in the data file. Wind direction: vector mean.
 > Missing data: excluded pairwise, gaps not filled.**
@@ -215,6 +221,44 @@ Paste the report block. Open the .docx, scroll to **Provenance**.
 > still not enough — because being explicit about a choice is not the same as
 > that choice being right. Somebody with your training has to read those lines
 > and agree with them. That is what you are for."**
+
+---
+
+## Segment E · the reveal · 3 min — **the finale**
+
+Bring **File Explorer** to the front, showing the live folder. Then paste
+**block 5**:
+
+```
+We started this hour with one CSV and three lines of text. Write a README.md
+that explains what this tool does, how to run it, and what decisions you made
+while building it.
+```
+
+Two things happen at once, and both matter.
+
+**They watch the tree fill.** `app.py`, `README.md`, `notes.json`,
+`MONALISA_overview.docx` — none of which existed an hour ago. For an audience
+that has never seen this, the folder is more persuasive than any of the plots.
+
+> **"One CSV. Three lines of text telling it the data are unpublished and where
+> Python lives. Everything else in this folder, we talked into existence in
+> forty minutes."**
+
+**And it writes down its own judgement calls.** That last clause of the prompt
+is doing the real work — *"what decisions you made while building it"*. Read two
+of them out loud from the README it just wrote, then close:
+
+> **"It is telling you, in writing, the choices it made on your behalf. That is
+> better documentation than most papers carry. And it is still not enough —
+> because writing a choice down is not the same as it being right. Somebody with
+> your training has to read those lines and agree with them.**
+>
+> **That is the job. It didn't go away. It moved."**
+
+> If the README is thin on decisions, push once: *"be specific about how you
+> averaged things and what you did with missing data."* That reliably produces
+> the four calls from B2.
 
 ---
 

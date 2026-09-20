@@ -159,13 +159,14 @@ not hunt for windows live.
 | 2 | **VS Code** with Claude Code | all segments |
 | 3 | **Browser** at `localhost:8501` | C, D, F |
 | 4 | **Word** — opens on its own for the report | E only |
-| 5 | **File Explorer** at the live folder | B and E, to show files appear |
+| 5 | **File Explorer** at the live folder | **E**, the finale — they watch the tree fill |
 
 Rehearse the switch 1 → 2 → 3 once before the room fills.
 
-**File Explorer earns its place in segment B.** This audience has never watched
-a tool write its own files. Having the folder visible when `ARCHITECTURE.md`
-and then `app.py` appear is a large part of the effect.
+**File Explorer is the finale.** This audience has never watched a tool write
+its own files. Bring the folder to the front in segment E, when `app.py`,
+`README.md`, `notes.json` and the `.docx` are all sitting there and none of them
+existed an hour ago. It is more persuasive than any of the plots.
 
 ---
 
@@ -183,17 +184,17 @@ you need.
 
 | Segment | Fall back to | If it stalls | Say this |
 |---|---|---|---|
-| **A** read and describe | — | No app exists yet, so nothing to restore. Describe the file yourself from `data_verification.md` and move to the "what did it *not* ask?" pause, which is the valuable part anyway | *"Let's not watch it type — here's what it found."* |
-| **B** architecture | `stage-1-architecture` | Open the prepared `ARCHITECTURE.md` from the fallback folder and read it as if it had just been written | *"It's written its plan — let's look at it."* |
-| **C** the GUI | `stage-2-plots` | If the audience's pick misbehaves, switch to **option 1** (toluene + `gas_NO`), the most rehearsed. **If the wind-direction fix itself fails, switch to `stage-6-winddir-fix`** — that jump shows the corrected curve immediately, which is the beat that matters | *"Let me show you the version where that's fixed."* |
-| **D** notes | `stage-3-notes` | If the form breaks, collect interpretations **on the whiteboard** and type them in later. Do not lose this segment — it is the one where the room owns something | *"Let's just write them up here."* |
-| **E** Word overview | `stage-4-report` | If the .docx will not build, open the prepared one from the fallback folder and scroll to Provenance. The closing point is the *content* of those two rows, not the act of generating them | *"Here's one from the rehearsal — the part I want you to see is at the end."* |
-| **F** correlations | `stage-5-correlations` | **Drop it.** It is the designed casualty. The numbers are in `prompt_script.md` if you want to state them verbally | *"We're out of time for that one — ask me afterwards."* |
+| **A** the audit | — | No app exists yet, so nothing to restore. Describe the file yourself from `data_verification.md`, then go to the "what did it *not* ask?" pause, which is the valuable part anyway | *"Let's not watch it type — here's what it found."* |
+| **B** the GUI | `stage-2-plots` | If the audience's pick misbehaves, switch to **option 1** (toluene + `gas_NO`), the most rehearsed. If it used a plain mean on wind direction, paste the contingency block — or jump to `stage-6-winddir-fix` to show the corrected curve at once | *"Let me show you the version where that's handled."* |
+| **C** notes | `stage-3-notes` | If the form breaks, collect interpretations **on the whiteboard** and type them in later. Do not lose this segment — it is the one where the room owns something | *"Let's just write them up here."* |
+| **D** Word report | `stage-4-report` | If the .docx will not build, open the prepared one from the fallback folder and scroll to Provenance. The point is the *content* of those rows, not the act of generating them | *"Here's one from the rehearsal — the part I want you to see is at the end."* |
+| **E** the reveal | — | Needs no code. If the README comes out thin, read the **provenance table** from the .docx instead — it carries the same judgement calls. Worst case, just show the folder tree and say the line about one CSV and three lines of text | *"Look at what's in this folder that wasn't there an hour ago."* |
+| **F** correlations | `stage-5-correlations` | **Drop it.** It is the designed casualty; the numbers are in `prompt_script.md` if you want them verbally | *"We're out of time for that one — ask me afterwards."* |
 | **Anything, catastrophically** | — | Play `MONALISA_demo_backup.mp4` and narrate | *"The live version is having a moment — luckily I recorded one."* |
 
-**Note on the wind-direction reveal.** It happens in segment C and it is the
-centrepiece, so protect it: if you are running short, cut **F** and then **B**,
-never C.
+**What to protect if you run short.** The order to cut is **F**, then trim the
+audience discussion in **B1**. Never cut **A** (the audit is the point) or
+**E** (the finale, and it costs 3 minutes).
 | **Anything, catastrophically** | Play `MONALISA_demo_backup.mp4` and narrate | *"The live version is having a moment — luckily I recorded one."* |
 
 ### If Claude Code itself is down or rate-limited
@@ -213,15 +214,14 @@ workflow you cannot check"*.
    features"* clause on every build prompt, interrupt when it embellishes, and
    treat the stage branches as a **time** fallback, not just a crash fallback.
    Never promise the room a specific layout.
-2. **Protect the wind-direction reveal in segment C.** It is the centrepiece
-   and the only trap that reliably survives. If you are short, cut **F**, then
-   **B** — never C.
-3. **Getting wind direction on screen at all.** It only works if that series is
-   selected. If the room picks something else, steer there yourself: *"let's add
-   the wind — direction tells us where the pollution came from."*
-4. **The duplication trap will not appear by itself.** Every mean and median is
-   immune; only a **sum** doubles, and the GUI has no sums. You must ask *"how
-   much rain fell over the campaign?"* or skip it.
+2. **The audit is the centrepiece now, not a trap.** Segment A carries the
+   lecture. Give it its full 12 minutes and do not fill the silence while it
+   profiles 881 columns.
+3. **The `n_met` moment may not fire** on the trimmed file — 2 + 2 rows is a
+   weak signal. Have the fallback line ready; see `prompt_script.md` A3.
+4. **Getting wind direction on screen** still matters for B2, since the four
+   judgement calls hang off it. If the room picks something else, steer there:
+   *"let's add the wind — direction tells us where the pollution came from."*
 5. **~22 s to the first page** with 881 columns, and **66.7 s** if the bytecode
    cache is cold. Warm the imports the night before (step 5) — measured, the
    difference is 17 s against 67 s.

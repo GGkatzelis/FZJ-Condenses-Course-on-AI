@@ -1,5 +1,9 @@
+MONALISA live demo - paste blocks, in order.
+One block per segment. Paste only what is between the banner lines.
+
+
 ================================================================
-BLOCK 1 - look at the file  (segment A)
+BLOCK 1 - THE AUDIT                            segment A, 12 min
 ================================================================
 
 There is a CSV in data/. Read it and tell me what is in it: how many rows, what
@@ -7,25 +11,22 @@ period it covers, what the columns are, and how much of each column is actually
 present. Tell me anything you cannot determine from the file itself. Do not plot
 anything and do not clean anything yet.
 
-
-================================================================
-BLOCK 2 - plan before building  (segment B)
-================================================================
-
-Before you write any code, write ARCHITECTURE.md describing the tool we are
-about to build, based on the description I am about to give you. Keep it to one
-page. Then wait for me before writing any code.
+  -> then STOP. Ask the room what it did NOT ask about.
+     Expect ~2 min of silence while it profiles 881 columns. Do not fill it.
 
 
 ================================================================
-BLOCK 3 - THE GUI  (segment C)  *** the main paste ***
+BLOCK 2 - THE GUI: list + two plots              segment B, 8 min
 ================================================================
 
-I want a small app for browsing this dataset. Here is what it should look like:
+Before you write any code, tell me in one paragraph what you are about to
+build, so I can check you understood me. Then build it.
+
+I want a small app for browsing this dataset:
 
 - A list of all the available series down the left-hand side. There are hundreds
-  of columns, so I need to be able to filter that list - both by group and by
-  typing part of a name - rather than scrolling one enormous dropdown.
+  of columns, so I need to filter that list - both by group and by typing part
+  of a name - rather than scrolling one enormous dropdown.
 
 - When I select one or more series (let me pick up to four at once), show me two
   plots on the right:
@@ -36,27 +37,74 @@ I want a small app for browsing this dataset. Here is what it should look like:
 
 - Label the axes properly, including units where the data gives them.
 
-- A separate panel where I can choose any two series and see them plotted
-  against each other, with the correlation coefficient and the number of points.
+Build it with Streamlit, in app.py. Keep it minimal - just what I have asked
+for, no extra features.
 
-- A box where I can type a note about whichever series I am currently looking
-  at, together with who said it. Save every note to a JSON file on disk the
-  moment I press save, organised one entry per series, so that restarting the
-  app cannot lose anything. Show the notes for the selected series underneath
-  the plots.
-
-- A button that turns those notes into a Word document: one section per series
-  with its notes and some basic statistics, the plots that are currently on
-  screen, and a provenance section recording which file the data came from, what
-  period it covers, and how it was processed.
-
-Build it with Streamlit. Keep it minimal - just what I have asked for, no extra
-features.
+  -> run it:   .venv\Scripts\python.exe -m streamlit run app.py
+     ~22 s to the first page. Talk over it.
 
 
 ================================================================
-BLOCK 4 - fix the wind direction  (segment C, the reveal)
+BLOCK 3 - NOTES                                  segment C, 5 min
 ================================================================
+
+Add a box where I can type a note about whichever series I am currently looking
+at, together with who said it. Save every note to a JSON file on disk the
+moment I press save, organised one entry per series, so that restarting the app
+cannot lose anything. Show the notes for the selected series underneath the
+plots.
+
+Keep it minimal - no extra features.
+
+  -> then collect two or three interpretations from the room and type them in
+     VERBATIM. Show them notes.json in the editor afterwards.
+
+
+================================================================
+BLOCK 4 - THE WORD REPORT                        segment D, 4 min
+================================================================
+
+Add a button that turns those notes into a Word document: one section per
+series with its notes and some basic statistics, the plots that are currently
+on screen, and a provenance section recording which file the data came from,
+what period it covers, and how it was processed.
+
+Keep it minimal - no extra features.
+
+  -> first, drop the prompt log in so provenance is populated:
+     Copy-Item "$env:USERPROFILE\Desktop\My Folders\My Coding\Python\GitHub\FZJ-Condenses-Course-on-AI\prep\prompts_for_report.json" ".\prompts.json"
+  -> open the .docx and scroll to Provenance.
+
+
+================================================================
+BLOCK 5 - THE REVEAL                             segment E, 3 min
+================================================================
+
+We started this hour with one CSV and three lines of text. Write a README.md
+that explains what this tool does, how to run it, and what decisions you made
+while building it.
+
+  -> have File Explorer visible. They watch the tree fill up.
+     That last clause makes it state its own judgement calls in writing.
+     This is the finale - read two of those decisions out loud.
+
+
+================================================================
+BLOCK 6 - CORRELATIONS            segment F, 3 min - DROP FIRST
+================================================================
+
+Add a separate panel where I can choose any two series and see them plotted
+against each other, with the correlation coefficient and the number of points.
+
+Keep it minimal - no extra features.
+
+
+================================================================
+CONTINGENCY - only if it used a plain mean on wind direction
+================================================================
+
+In the trial it got this right on its own and used a vector mean. If a run does
+NOT, this is the fix:
 
 Wind direction is a circular variable - you cannot take an arithmetic mean of
 degrees, because 350 and 10 average to 180 instead of 0. Use a vector mean
@@ -66,8 +114,10 @@ being used.
 
 
 ================================================================
-ONE-PASTE FALLBACK  (only if badly behind - loses the pauses)
+ONE-PASTE FALLBACK - only if badly behind
 ================================================================
+
+Loses every pause and gives one long silent build with no partial result.
 
 Read the CSV in data/, then build a Streamlit app for browsing it. A filterable
 list of all the series down the left. When I select up to four, show the time
@@ -76,10 +126,3 @@ separate panel for correlating any two series. A box to type notes against the
 selected series, appended to a JSON file on disk immediately. A button that
 builds a Word document from those notes with the figures, basic statistics and a
 provenance section. Keep it minimal.
-
-
-================================================================
-RUN IT
-================================================================
-
-.venv\Scripts\python.exe -m streamlit run app.py
