@@ -1,0 +1,12 @@
+[
+  "Look at the CSV in data/. Tell me what is in it: how many rows, what time period, what the columns are, what units they are in, and how much of each column is actually present. Do not plot anything yet and do not clean anything. Just describe what you find.",
+  "Build a Streamlit app called app.py with an Overview tab that shows what you just described: row count, date range, time step, and a table of every column with its unit, percent valid, min, median and max.",
+  "Add a Time series tab. Let me choose up to four columns from a dropdown and plot them against time, with a toggle for 30-minute, hourly and daily averaging. Label the axes with the correct units.",
+  "Add a Diurnal tab that shows the mean value for each hour of the day, averaged over all days, for the columns I choose. Let me switch between mean and median.",
+  "How much rain fell over the whole two weeks, and which day was wettest? Also give me the total global radiation dose per day in MJ/m2.",
+  "Show me the first six rows of the met columns for a daytime hour.",
+  "Add a Correlations tab. Let me pick any two columns, show a scatter plot with the points coloured by hour of day, and print Pearson r, Spearman, and n.",
+  "Split that correlation by time of day: night 00-05 against midday 11-16, and also correlate both compounds against wind speed.",
+  "Add a Notes tab. I want to type in an interpretation, tag it with a segment and who said it, and have it appended to notes.json on disk the moment I press save - so that restarting the app cannot lose anything. Show all notes so far underneath, newest first.",
+  "Add a Report tab with a button that writes a Word document containing the figures currently on screen, a statistics table for the selected series, every note from notes.json, and a provenance section that is filled in automatically: data file name and SHA-256, row and column count, date range, time base, time zone, the averaging and statistic I selected, how missing data were handled, the tool, the model, the Python and pandas versions, the timestamp, and the list of prompts from prompts.json."
+]

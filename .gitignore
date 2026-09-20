@@ -1,0 +1,42 @@
+# ===========================================================================
+# DATA HANDLING - read before changing anything below
+# ---------------------------------------------------------------------------
+# Remote: github.com/GGkatzelis/FZJ-Condenses-Course-on-AI
+# Georgios confirmed on 2026-09-19 that this repo is PRIVATE, so prep/ is
+# tracked normally - it holds unpublished results (figures, correlations,
+# timing analysis) which are fine on a private remote.
+#
+# The MONALISA CSVs themselves must NEVER be pushed regardless, published or
+# not. The rules below enforce that. Do not relax them.
+# Verify with:  git check-ignore -v <file>
+#
+# If this repo is ever made PUBLIC, uncomment these two lines first:
+#   prep/figures/
+#   prep/*.md
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# MONALISA campaign data is UNPUBLISHED. It must never reach the GitHub remote.
+# These rules are deliberately broad. Do not relax them without asking Georgios.
+# ---------------------------------------------------------------------------
+MONALISA_campaign_master_30min.csv
+data_original/
+*.csv
+*.CSV
+!live_template/requirements.txt
+
+# Rehearsal scratch (contains data copies)
+prep/rehearsal_*/
+prep/checkpoints/
+
+# Environments
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.ipynb_checkpoints/

@@ -1,0 +1,23 @@
+# MONALISA Paris 2025 - analysis demo
+# Python 3.12
+#
+# Create the environment (from this folder), takes about 40 s from a warm cache:
+#   uv venv --python 3.12 .venv
+#   uv pip install --python .venv/Scripts/python.exe -r requirements.txt
+#
+# or with plain pip:
+#   py -3.12 -m venv .venv
+#   .venv\Scripts\python.exe -m pip install -r requirements.txt
+#
+# Then run the app with:
+#   .venv\Scripts\python.exe -m streamlit run app.py
+#
+# requirements-lock.txt holds the full transitive pin set.
+
+pandas==3.0.6
+numpy==2.5.3
+matplotlib==3.11.2
+plotly==7.1.0
+streamlit==1.64.0
+python-docx==1.2.0
+scipy==1.18.1          # required by pandas .corr(method="spearman")
