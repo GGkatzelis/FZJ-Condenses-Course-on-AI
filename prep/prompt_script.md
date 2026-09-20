@@ -1,390 +1,295 @@
 # Prompt script — live demo, Thursday 24 Sep 2026, 13:45–15:15
 
-Type these verbatim. Each segment has **prepared menu options** — offer the
-audience only these, because these are the ones that have been rehearsed.
+**Design (Georgios, 2026-09-20).** Build the GUI from scratch, live, in front of
+the room. The audience has mostly never seen vibe coding, so **the build itself
+is the content** — watching files appear and a working tool assemble is the
+spectacle. The traps ride along inside it.
 
-Total budget **32 min** of demo inside the 90-min lecture.
-Timings measured in rehearsal are in [trap_log.md](trap_log.md).
+**Data: the full campaign file.** 2,927 rows × 881 columns, 1 Sep – 31 Oct 2025,
+20.4 MB. Met corrected by −1 h; everything else exactly as the campaign
+produced it, `n_` bookkeeping columns included.
 
-## The framing: **audit the AI** (chosen 2026-09-19)
+**Metadata: almost none.** `live_template/CLAUDE.md` says only that the data are
+unpublished and where the venv is. No units, no instrument, no site
+description, no time zone, no column list. This is deliberate: it is what a real
+file looks like, and **what the tool fails to ask about is the trap**.
 
-An independent run given only these prompts **caught the met duplication and the
-time zone by itself, unprompted, inside segment A**, and volunteered the unit
-problems too. See [rehearsal_2_comparison.md](rehearsal_2_comparison.md).
+**Target: 32 min.** Build order is deliberate — a complete working loop (look →
+note → Word file) before anything optional. Correlations are last and droppable.
 
-So the demo is **not** "watch it fail". It is:
-
-> **The tool gets it right. You only know that because you checked — and every
-> check required atmospheric science. Expertise did not become optional; it
-> moved from doing the analysis to auditing it. That is the harder job, because
-> a confident correct answer and a confident wrong answer look identical until
-> you do the work.**
-
-**Three rules that follow from this:**
-
-1. **Every time it catches something, hand the verification to the room.** Do
-   not confirm it yourself. Ask *"how would you check that?"* and then check it
-   live. The audience does the science; the AI is the thing under audit.
-2. **Credit it out loud when it is right.** Pretending to be disappointed reads
-   as dishonest to this audience and wastes the stronger lesson.
-3. **The genuine failures on slides 7, 8 and 9 are yours, not the AI's.** They
-   are your analysis of real defaults on real data. Never present them as live
-   AI output.
-
-**Two mechanical notes:**
-
-- The duplication only shows up in a **sum**. Means and medians are immune, so
-  if you want the doubled number on screen at all you must ask for a total —
-  prompt **B4**.
-- **There are no negative ion values in this file.** Do not offer them as a
-  beat; the nine chosen compounds never go negative. (`gas_O3` has three.)
-
-**Scope control.** Rehearsal 2 wrote 1161 lines from these prompts where
-rehearsal 1 wrote 370. Every build prompt below therefore ends with **"Keep it
-minimal — one tab, no extra features."** Do not drop that clause, and interrupt
-if it starts adding things you did not ask for.
+| Segment | Budget | Ends with |
+|---|---|---|
+| A · read and describe | 7 min | the "what did it *not* ask?" pause |
+| B · architecture | 3 min | `ARCHITECTURE.md` on screen |
+| C · the GUI: list + 2 plots | 10 min | working browser, **wind-direction trap live** |
+| D · notes → JSON | 5 min | `notes.json` with the room's words in it |
+| E · Word overview | 4 min | the .docx, provenance section open |
+| F · correlations | 3 min | *drop this first if time is short* |
 
 ---
 
-## Before you start (not on the clock)
+## Before you start (off the clock)
 
-Terminal already open in the live folder, environment already built:
+```powershell
+cd "$env:USERPROFILE\Desktop\MONALISA_live"
+code .
+```
+
+Terminal open, browser ready at `localhost:8501`. **Do not** put `prompts.json`
+in the folder yet — it lists every prompt and gives away the plan. You drop it
+in at segment E.
+
+---
+
+## Segment A · read and describe · 7 min
+
+### A1
+
+```
+There is a CSV in data/. Read it and tell me what is in it: how many rows, what
+period it covers, what the columns are, and how much of each column is actually
+present. Tell me anything you cannot determine from the file itself. Do not plot
+anything and do not clean anything yet.
+```
+
+**What it will do** (tested on an independent run): get 2,927 × 881 right, group
+the columns into `NH4_` / `H3O_` / `gas_` / `met_` / `n_`, notice the units
+embedded in the `gas_`/`met_` names, notice that **the ion columns have no units
+anywhere**, and flag the time zone as undeterminable.
+
+### A2 — the pause. **This is the most important 3 minutes of the lecture.**
+
+Ask the room, in this order:
+
+> **1. "What did it ask us for?"**
+
+It will have asked about — or flagged as unknowable — the ion units, the time
+zone, and probably what `eBC` is. **Credit that out loud.** This is the honest
+lesson: a good tool tells you what it does not know.
+
+> **2. "Now — what did it *not* ask about?"**
+
+This is the real question. Things it will almost certainly *not* raise unless
+prompted:
+
+- **`met_Wind_Direction` is a circular variable.** It is just "a number in
+  degrees" to the tool. ← *this becomes segment C*
+- **`gas_NOX` is in ppb while `gas_NO` and `gas_NO2` are in µg/m³.** So
+  `NO + NO2` does not equal `NOX` unless you convert.
+- **The same compound appears twice**, once in each reagent-ion mode: acetone is
+  both `NH4_C3H10NO+` and `H3O_C3H7O+`, with medians of 3,144 and 15,853 cps —
+  a factor of five for the *same molecule*.
+- **The campaign crosses a daylight-saving transition** (26 Oct 2025). Nothing
+  in the file hints at it.
+- **The met columns each hold their value twice.**
+
+Do not reveal these. Let them find one or two, then move on — you will hit the
+wind direction in C and can return to the rest if time allows.
+
+> **3. "It said it cannot know the time zone. Does that matter?"**
+
+Yes — everything diurnal depends on it. Park it; it returns in E.
+
+---
+
+## Segment B · architecture · 3 min
+
+```
+Before you write any code: write ARCHITECTURE.md describing the tool we are
+about to build. I want a list of series on the left, and on the right two plots
+for whichever series I select - the timeseries, and the mean diurnal cycle split
+into weekday and weekend. Plus a separate panel for correlating two series, a
+way to type notes against each series that get saved to a JSON file, and a
+button that turns those notes into a Word overview document. Keep it short.
+```
+
+**Why this earns its 3 minutes with this audience:** they have never seen a tool
+plan its own work. Open `ARCHITECTURE.md` on the projector and read two lines of
+it out. Then:
+
+> **"It has now written down what it thinks we asked for. This is the cheapest
+> moment to catch a misunderstanding — and the last easy one."**
+
+---
+
+## Segment C · the GUI · 10 min
+
+### C1 — **paste block 3 from [`gui_prompt.txt`](gui_prompt.txt)**
+
+The full GUI description lives in `gui_prompt.md` / `gui_prompt.txt` so you can
+copy it in one go. It asks for the filterable left-hand list, the two plots, the
+correlation panel, the notes file and the Word button, and it ends with *"keep
+it minimal — just what I have asked for, no extra features."*
+
+**Do not retype it from memory and do not drop the last line.**
 
 ```
 .venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-Leave the browser tab open at `localhost:8501` on a second window.
+⚠️ **Cold start is 14 s.** Say something while it boots.
 
-**Do not put `prompts.json` in the live folder yet** — it lists every prompt in
-order and would hand the session the whole plan. You drop it in at the start of
-segment E with one command; see `day_of_checklist.md`.
+### C2 — the audience picks
 
----
+> **"Pick something to look at. Here is the menu."**
 
-## Segment A · load and inspect · 7 min
-
-### A1 — the opening prompt
-
-```
-Look at the CSV in data/. Tell me what is in it: how many rows, what time
-period, what the columns are, what units they are in, and how much of each
-column is actually present. Do not plot anything yet and do not clean
-anything. Just describe what you find.
-```
-
-**What to expect:** a correct row/column count, the date range, and a coverage
-table. It will read `CLAUDE.md` and repeat the units from there.
-
-### A2 — the pause. Ask the room before you type anything
-
-> **"It just described this file to us. What does it *not* know?"**
-
-**Take bets before it answers.** Rehearsal 2 volunteered most of this list
-unprompted in segment A, so asking the room *first* is what preserves the
-tension — it becomes "did you spot it too?" rather than "will it fail?".
-
-Let them answer. Steer towards, in this order:
-
-1. **What time zone are these timestamps?** Nothing in the file says. *(If it
-   has already flagged this itself — likely — credit it and ask the room what
-   difference the answer would make to the diurnal plots.)*
-2. **What do the ion numbers mean physically?** They are raw cps, so they are
-   not comparable between ions and cannot be summed.
-3. **Is `gas_eBCff` a gas?** No — it is aerosol black carbon with a misleading
-   prefix.
-4. **Is `gas_CO` on the same scale as the others?** No — mg/m³ against µg/m³, a
-   factor of 1000.
-5. **Where does the 11 % of missing VOC data go?** It is not random: isolated
-   30-min gaps recurring roughly every 3.5 h, which is an instrument duty
-   cycle. Anything that fills those gaps with zeros is fabricating data.
-
-> **Do not ask about negative values.** There are none in these nine columns —
-> see the correction in `trap_log.md`. If someone raises it, the honest answer
-> is that PTR data *can* go negative from background subtraction but these
-> compounds are all far above background; `gas_O3` has three such values.
-
-### A3 — build the first working thing
-
-```
-Build a Streamlit app called app.py with an Overview tab that shows what you
-just described: row count, date range, time step, and a table of every column
-with its unit, percent valid, min, median and max. Then tell me how to run it.
-
-Keep it minimal - one tab, no extra features.
-```
-
-→ **checkpoint `stage-3a`**
-
----
-
-## Segment B · time series and diurnals · 10 min
-
-### B1 — the audience picks
-
-> **"Pick two compounds. Here is the menu."**
-
-| Option | Columns | Why it goes somewhere |
+| Option | Filter to | Why it goes somewhere rehearsed |
 |---|---|---|
-| **1. Traffic pair** | toluene `H3O_C7H9+` + `gas_NO` | Clean weekday morning peak; sets up the time-zone question |
-| **2. Traffic vs wood burning** | `gas_eBCff` + `gas_eBCwb` | Very different evening behaviour; ff/wb split is a real result |
-| **3. Biogenic vs anthropogenic** | isoprene `H3O_C5H9+` + benzene `H3O_C6H7+` | Isoprene tracks temperature, benzene does not |
-| **4. A consumer-product VOC** | D5 siloxane `H3O_C10H31O5Si5+` | Peaks in the morning with people, not with traffic — surprises everyone |
+| **1. Traffic** ⭐ | `C7H9` (toluene) + `gas_NO` | **The best science on screen.** Weekday peaks at **07:00** (3,831 cps); weekend peaks at **19:00** (2,575). The whole profile inverts between weekday and weekend — morning commute vs Saturday evening. Verified |
+| **2. Wood burning vs traffic** | `eBCwb` + `eBCff` | Different evening behaviour; the ff/wb split is a real result |
+| **3. Weekend effect** | `C6H7` (benzene) + `gas_NO2` | Weekend curves visibly lower — the cleanest science on screen |
+| **4. Meteorology** | family = Meteorology | **Leads straight to the wind-direction trap.** Steer here if nobody picks it |
 
-```
-Add a Time series tab. Let me choose up to four columns from a dropdown and
-plot them against time, with a toggle for 30-minute, hourly and daily
-averaging. Label the axes with the correct units.
+### C3 — ⚠️ THE CENTREPIECE. Get wind direction on screen
 
-Keep it minimal - one tab, no extra features.
-```
+If the room has not chosen it, choose it yourself:
 
-### B2 — the diurnal
+> **"Let's add the wind — direction tells us where the pollution came from."**
 
-```
-Add a Diurnal tab that shows the mean value for each hour of the day, averaged
-over all days, for the columns I choose. Let me switch between mean and median.
+Select `met_Wind_Direction (degrees)`. You get a smooth, entirely plausible
+diurnal curve sitting around **171°**, i.e. a southerly wind, with a weekday and
+a weekend line. No error, no warning, nothing to suggest a problem.
 
-Keep it minimal - one tab, no extra features.
-```
+**It is wrong.** Verified on this file:
 
-### B3 — the time-zone moment
-
-Plot **option 1** (toluene + NO) and ask:
-
-> **"The morning peak is at hour 7 in this file. Is that plausible?"**
-
-**Have this straight before you go on stage** — it is the one place the demo can
-bite back:
-
-- The file is **UTC**. Paris was on **CEST (UTC+2)** on these dates.
-- So the file's 07:00 peak is **09:00 local**, and NO peaks at 08:00 file time
-  = **10:00 local**.
-- Taken at face value as local time, the peaks sit at 06–08, which looks like a
-  *textbook* European rush hour. **The wrong reading looks more convincing than
-  the right one.** That is the lesson — say it out loud.
-- If a student objects that 09–10 local is late for rush hour: they are right to
-  push. NO₂ peaks at 06 UTC = 08:00 local, which *is* textbook. The later NO
-  peak reflects titration and boundary-layer growth, not the emission time.
-- The evening maxima sit at 19–20 UTC = **21–22 local**, which is far too late
-  for traffic. That is the clue that the evening peak is **boundary-layer
-  collapse**, not emissions — the same lesson as slide 8.
-
-### B4 — ⚠️ DO NOT SKIP. The centrepiece of the demo
-
-```
-How much rain fell over the whole two weeks, and which day was wettest? Also
-give me the total global radiation dose per day in MJ/m2.
-```
-
-**Two reference answers. Know both numbers cold:**
-
-| | de-duplicated (**correct**) | naive row-sum (**doubled**) |
-|---|---|---|
-| Rainfall, 14 days | **26.7 mm** | 53.4 mm |
-| Radiation, mean | **9.76 MJ/m²/day** | 19.5 MJ/m²/day |
-| Radiation, daily max | 15.5 MJ/m² | ~31 MJ/m² |
-| Wettest day | 4 Oct, **7.3 mm** | 4 Oct, 14.6 mm |
-
-Note the wettest *day* is 4 Oct either way — every day doubles by exactly
-2.000, so the ranking is preserved. **The tell is always the magnitude.**
-
----
-
-#### ✅ Path 1 — it de-duplicates correctly. **This is the likely path.**
-
-Rehearsal 2 returned 26.7 mm and 9.76 MJ/m²/day, and volunteered the insolation
-argument itself. Credit it, then hand the audit to the room:
-
-> **"It got that right, and it explained why. How would *you* have known it was
-> right?"**
-
-Make them verify it:
-
-```
-Show me the first six rows of the met columns for a daytime hour.
-```
-
-They see the duplicated values for themselves. Then the question the lecture is
-actually about:
-
-> **"It claimed the doubled figure was physically impossible. Is that argument
-> correct? What *is* the clear-sky maximum at this latitude in late September?"**
-
-(About 18–20 MJ/m²/day at the surface; top-of-atmosphere is ~20–24. So
-19.5 MJ/m²/day as a *fortnight mean*, in a period with rain on six days, is
-impossible. 9.76 is right.)
-
-The tool produced a correct answer *and* a correct justification — and nobody in
-the room could confirm either without knowing the insolation ceiling at
-48.85 °N. That is the whole lecture in one exchange.
-
----
-
-#### Path 2 — it returns the doubled numbers
-
-Then you have the classical version. Do not announce the error:
-
-> **"53 millimetres in a fortnight, and 19.5 megajoules per square metre per
-> day. Is either of those plausible?"**
-
-Push them to the radiation, not the rain — 53 mm is high but arguable, whereas
-19.5 MJ/m²/day is impossible. Then the same confirming prompt above, and the
-same closing point: it ran clean, it looked plausible, and only the physics
-caught it.
-
-→ **checkpoint `stage-3b`**
-
----
-
-## Segment C · correlations · 7 min
-
-### C1 — the audience picks a pair
-
-| Option | Pair | Rehearsed outcome |
-|---|---|---|
-| **1. Benzene vs monoterpenes** | `H3O_C6H7+` vs `H3O_C10H17+` | r ≈ 0.9. **The slide-8 trap** — high r, no shared source |
-| **2. eBCff vs NO** | `gas_eBCff` vs `gas_NO` | Genuinely co-emitted by traffic. The honest positive control |
-| **3. Isoprene vs temperature** | `H3O_C5H9+` vs `met_Sheltered_Temperature` | Real biogenic driver; a physical mechanism, not just r |
-| **4. NO vs O₃** | `gas_NO` vs `gas_O3` | Strong **negative** r from titration — anticorrelation with a cause |
-
-```
-Add a Correlations tab. Let me pick any two columns, show a scatter plot with
-the points coloured by hour of day, and print Pearson r, Spearman, and n.
-
-Keep it minimal - one tab, no extra features.
-```
-
-### C2 — the point of the segment
-
-Run **option 1**, then:
-
-> **"r is 0.9. Do benzene and monoterpenes come from the same source?"**
-
-They do not. Benzene is traffic and solvents; monoterpenes at an urban site are
-largely consumer products and vegetation. They correlate because **both
-accumulate under the same shallow nocturnal boundary layer and both get diluted
-at midday**. Show it:
-
-```
-Split that correlation by time of day: night 00-05 against midday 11-16, and
-also correlate both compounds against wind speed.
-```
-
-Night r is much higher than midday r, and both anticorrelate with wind speed.
-The correlation is **dilution**, not chemistry.
-
-**Reference numbers for this window (22 Sep – 5 Oct), know them cold:**
-
-| | n | Pearson | Spearman |
-|---|---|---|---|
-| all points | 598 | **0.771** | 0.812 |
-| night 00–05 | 148 | **0.838** | 0.776 |
-| midday 11–16 | 149 | **0.612** | 0.736 |
-
-Wind speed vs benzene **−0.516** (−0.762 at night); vs monoterpenes **−0.377**.
-
-#### ✅ If it reaches the right conclusion by itself
-
-Rehearsal 2 did, and went further than the script. Expect it to offer:
-
-- **partial correlation controlling for CO collapses r from 0.77 to ~0.35–0.46**
-  — most of the apparent association is shared combustion and dilution.
-  *(I verify **+0.353** with the standard first-order formula; rehearsal 2
-  reported 0.46. The number is method-dependent, so quote it as "roughly
-  halves", not as a precise figure.)* Controlling for wind speed alone barely
-  moves it: **+0.727**.
-- **monoterpenes show no temperature dependence at all: r = −0.017** (verified)
-- monoterpenes track **D5 siloxane at +0.756** (verified), pointing at consumer
-  products rather than vegetation
-- and that a defensible answer needs **PMF plus wind-direction sectoring**, not
-  a pairwise r
-
-Do not compete with it. Put the audit to the room instead:
-
-> **"It says these don't share a source, and it's right. Which single number in
-> that argument would you check first — and how?"**
-
-The strongest answer is the **temperature test, with isoprene as the control**:
-
-| | vs temperature |
+| | value |
 |---|---|
-| isoprene (genuinely biogenic) | **+0.229** |
-| monoterpenes | **−0.017** |
+| naive arithmetic mean of degrees | **171° (south)** |
+| correct vector / circular mean | **220° (southwest)** |
+| worst single hour (15:00) | naive 174° vs true **249°** — off **75°** |
+| mean absolute error across the 24 hours | **49°** |
+| hours wrong by more than 45° | **13 of 24** |
+| observations within 45° of north | 20.3 % |
 
-If the monoterpene signal here were biogenic it *must* track temperature the way
-isoprene does. It does not, while isoprene in the same file does — so the
-instrument and the method are fine and the difference is real. That is a
-**physical falsification test with a built-in positive control**, which is a
-different and better thing than any correlation coefficient. It is also exactly
-the kind of check the tool will not decide to care about on your behalf.
+Ask:
 
-> Note: the app already warns you when Pearson and Spearman disagree by more
-> than 0.15, which is a cheap, honest guard worth pointing out.
+> **"That says the wind was southerly. Does anyone believe that number?"**
 
-→ **checkpoint `stage-3c`**
+Then the reveal: **you cannot average a compass bearing.** The mean of 350° and
+10° is 180° — due south — when the true answer is 0°, due north. Every
+observation near north drags the average to the middle of the dial.
+
+Then fix it live:
+
+```
+Wind direction is a circular variable - you cannot take an arithmetic mean of
+degrees, because 350 and 10 average to 180 instead of 0. Use a vector mean
+instead: average the sine and cosine and take the arctangent. Fix the diurnal
+plot and record in the app which averaging method is being used.
+```
+
+**Watch the curve move by 50 degrees.** That is the whole lecture in one plot.
+
+> **"Nothing failed. No error, no warning. The code was right; the physics was
+> wrong. And the only reason we caught it is that somebody in this room knows
+> what a wind rose is."**
+
+Ask the closing question of the segment:
+
+> **"How many other columns in these 881 have a problem like this that we
+> haven't looked for?"**
 
 ---
 
-## Segment D · notes panel · 5 min
+## Segment D · notes → JSON · 5 min
 
 ```
-Add a Notes tab. I want to type in an interpretation, tag it with a segment and
-who said it, and have it appended to notes.json on disk the moment I press save
-— so that restarting the app cannot lose anything. Show all notes so far
-underneath, newest first.
-
-Keep it minimal - one tab, no extra features.
+Add a way to write a note against whichever series I have selected - who said
+it and what they said - and append it to notes.json on disk the moment I save,
+so restarting the app cannot lose anything. Structure the file as one entry per
+series so I can use it later. Show the notes for the selected series underneath
+the plots.
 ```
 
-Then **actually collect two or three interpretations from the room and type them
-in verbatim.** Their words, not a tidied version — that is the point of the
-segment and it is what makes the report theirs.
+Then **collect two or three interpretations from the room and type them in
+verbatim.** Their words, not a tidied version.
 
-Good prompts to the room:
+Good ones to ask for:
 
-- *"Why is the evening peak later than the morning one?"*
-- *"Would you trust the rainfall number now?"*
-- *"What would you need to know before publishing any of this?"*
+- *"What should we write down about that wind direction?"* ← the best note in the
+  file, and it is theirs
+- *"Why is the weekend curve lower but not flat?"*
+- *"What would you need to know before you put this in a paper?"*
 
-→ **checkpoint `stage-3d`**
+Show them `notes.json` in the editor. Seeing their own sentence appear as
+structured data lands well with people who have never done this.
 
 ---
 
-## Segment E · Word report · 3 min
+## Segment E · Word overview · 4 min
 
-```
-Add a Report tab with a button that writes a Word document containing the
-figures currently on screen, a statistics table for the selected series, every
-note from notes.json, and a provenance section that is filled in automatically:
-data file name and SHA-256, row and column count, date range, time base, time
-zone, the averaging and statistic I selected, how missing data were handled,
-the tool, the model, the Python and pandas versions, the timestamp, and the
-list of prompts from prompts.json.
+Drop the prompt log in first (one paste, prepared in advance):
 
-Keep it minimal - one tab, no extra features.
+```powershell
+Copy-Item "$env:USERPROFILE\Desktop\My Folders\My Coding\Python\GitHub\FZJ-Condenses-Course-on-AI\prep\prompts_for_report.json" ".\prompts.json"
 ```
 
-**Open the .docx on the projector and scroll to Provenance.** The closing line:
+```
+Add a button that builds a Word document from notes.json: a section per series
+with its notes and basic statistics, the figures currently on screen, and a
+provenance section filled in automatically - data file and its SHA-256, row and
+column count, date range, time base, time zone, which averaging I used, how
+wind direction was averaged, how missing data were handled, the tool, the model,
+the Python and pandas versions, the timestamp, and the prompts from prompts.json.
+```
 
-> **"Time zone: not stated in the data file."** The report says so honestly,
-> because nothing in the file ever told us. Everything else in this document is
-> reproducible. That field is the one that would have sunk the analysis — and
-> the only reason it is flagged is that a person in this room asked the
-> question in the first ten minutes.
+Open the .docx on the projector and scroll to **Provenance**. Two rows carry the
+whole lecture:
 
-→ **checkpoint `stage-3e`**
+```
+Wind direction averaging     vector (circular) mean
+Time zone                    not stated in the data file
+```
+
+> **"Two rows. The first one only says 'vector mean' because somebody in this
+> room caught it — an hour ago it said 'arithmetic mean of degrees' and the
+> document would have been just as confident. The second one says we never knew,
+> which is the honest answer, and it is in there because a person asked the
+> question in the first ten minutes.**
+>
+> **Everything else in this document is reproducible. Those two rows are the
+> reason it is also *correct* — and neither of them came from the tool."**
+
+---
+
+## Segment F · correlations · 3 min · **drop this first**
+
+```
+Add a panel where I pick any two series and see a scatter plot coloured by hour
+of day, with Pearson r, Spearman and n.
+```
+
+Two rehearsed pairs:
+
+| Pair | Result (verified on the full campaign) |
+|---|---|
+| `H3O_C6H7+` vs `H3O_C10H17+` | **r = 0.86** overall. High — but **not a shared source**: **0.95 at night** against **0.50 at midday**, and both anticorrelate with wind speed (−0.41 and −0.31). It is shared boundary-layer dilution, not chemistry |
+| `NH4_C3H10NO+` vs `H3O_C3H7O+` | **r = 0.88** — and this is **the same compound measured two ways**, medians 3,144 vs 15,853 cps. A brilliant "what does r even mean here?" moment |
 
 ---
 
 ## If something stalls
 
-Fallback is one line. See [day_of_checklist.md](day_of_checklist.md) for the
-exact command and the per-segment plan.
-
-```
-git -C ..\MONALISA_fallback checkout -q stage-3c
-copy /Y ..\MONALISA_fallback\app.py .
+```powershell
+git -C ..\MONALISA_fallback checkout -q stage-3-notes
+Copy-Item -Force ..\MONALISA_fallback\app.py .
 ```
 
-Streamlit reloads on save, so the app is back within seconds.
+Streamlit reloads on save. Per-segment fallbacks in
+[day_of_checklist.md](day_of_checklist.md).
+
+## Numbers to know cold
+
+| | |
+|---|---|
+| Wind direction, naive vs true | **171° vs 220°**, worst hour off **75°** |
+| NOX closure | raw `NO+NO2` = 14.3 vs NOX 7.9; converted = **7.92 vs 7.90**, r = 1.0000 |
+| Acetone, two modes | 3,144 (NH₄⁺) vs 15,853 (H₃O⁺) cps, r = 0.88 |
+| DST | transition at **26 Oct 01:00 UTC**; a naive `+2 h` mislabels **285 rows (9.7 %)** |
+| Days averaged | 45 weekday, 16 weekend |
+| Benzene vs monoterpenes | **0.86 all / 0.95 night / 0.50 midday** |
+| Toluene diurnal | weekday peak **07:00** (3,831 cps); weekend peak **19:00** (2,575) |
+
+> All numbers above are from the **full campaign** file the demo now uses. Earlier
+> drafts of this script quoted values from a two-week subset (0.77 / 0.84 / 0.61)
+> — those are superseded. Do not mix the two sets.

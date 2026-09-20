@@ -1,0 +1,85 @@
+================================================================
+BLOCK 1 - look at the file  (segment A)
+================================================================
+
+There is a CSV in data/. Read it and tell me what is in it: how many rows, what
+period it covers, what the columns are, and how much of each column is actually
+present. Tell me anything you cannot determine from the file itself. Do not plot
+anything and do not clean anything yet.
+
+
+================================================================
+BLOCK 2 - plan before building  (segment B)
+================================================================
+
+Before you write any code, write ARCHITECTURE.md describing the tool we are
+about to build, based on the description I am about to give you. Keep it to one
+page. Then wait for me before writing any code.
+
+
+================================================================
+BLOCK 3 - THE GUI  (segment C)  *** the main paste ***
+================================================================
+
+I want a small app for browsing this dataset. Here is what it should look like:
+
+- A list of all the available series down the left-hand side. There are hundreds
+  of columns, so I need to be able to filter that list - both by group and by
+  typing part of a name - rather than scrolling one enormous dropdown.
+
+- When I select one or more series (let me pick up to four at once), show me two
+  plots on the right:
+  - the time series itself, with a switch for the raw resolution, hourly and
+    daily averaging
+  - the mean diurnal cycle for the same series, with weekdays and weekends drawn
+    separately so I can compare them
+
+- Label the axes properly, including units where the data gives them.
+
+- A separate panel where I can choose any two series and see them plotted
+  against each other, with the correlation coefficient and the number of points.
+
+- A box where I can type a note about whichever series I am currently looking
+  at, together with who said it. Save every note to a JSON file on disk the
+  moment I press save, organised one entry per series, so that restarting the
+  app cannot lose anything. Show the notes for the selected series underneath
+  the plots.
+
+- A button that turns those notes into a Word document: one section per series
+  with its notes and some basic statistics, the plots that are currently on
+  screen, and a provenance section recording which file the data came from, what
+  period it covers, and how it was processed.
+
+Build it with Streamlit. Keep it minimal - just what I have asked for, no extra
+features.
+
+
+================================================================
+BLOCK 4 - fix the wind direction  (segment C, the reveal)
+================================================================
+
+Wind direction is a circular variable - you cannot take an arithmetic mean of
+degrees, because 350 and 10 average to 180 instead of 0. Use a vector mean
+instead: average the sine and the cosine and take the arctangent. Fix the
+diurnal plot, and record in the app and in the report which averaging method is
+being used.
+
+
+================================================================
+ONE-PASTE FALLBACK  (only if badly behind - loses the pauses)
+================================================================
+
+Read the CSV in data/, then build a Streamlit app for browsing it. A filterable
+list of all the series down the left. When I select up to four, show the time
+series and the mean diurnal cycle with weekdays and weekends separately. A
+separate panel for correlating any two series. A box to type notes against the
+selected series, appended to a JSON file on disk immediately. A button that
+builds a Word document from those notes with the figures, basic statistics and a
+provenance section. Keep it minimal.
+
+
+================================================================
+RUN IT
+================================================================
+
+.venv\Scripts\python.exe -m streamlit run app.py

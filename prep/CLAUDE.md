@@ -2,7 +2,52 @@
 
 > This file is the authoritative brief for the lecture-demo preparation.
 > Any new Claude Code session working in `prep/` should read this first.
-> Written 2026-09-19 from Georgios Gkatzelis' briefing.
+> Written 2026-09-19; **substantially revised 2026-09-20 — see §0.**
+
+---
+
+## ⚠️ READ FIRST — the design changed on 2026-09-20
+
+The original brief (§1–§7 below, still accurate on the data) assumed a
+trap-hunting demo on a two-week, 22-column subset with a richly documented
+`CLAUDE.md`. **Georgios replaced that design.** The current design is:
+
+| | Was | **Is now** |
+|---|---|---|
+| Point of the demo | watch the AI fall into traps | **watch a GUI get built from nothing** — the audience has never seen vibe coding, so the build *is* the content |
+| Data | 672 rows × 22 cols, 22 Sep – 5 Oct | **full campaign: 2,927 × 881, 1 Sep – 31 Oct, 20.4 MB** |
+| Metadata given to the AI | full units table, eBC warning, instrument, site | **almost none** — three lines saying the data are unpublished and where the venv is |
+| GUI | six tabs | **series list on the left, two plots on the right** (timeseries + weekday/weekend diurnal), correlations subpanel, notes → JSON, Word overview |
+| Centrepiece trap | met duplication → doubled sums | **wind direction averaged as a scalar** (171° vs a true 220°) |
+| Framing | audit the AI | **unchanged: audit the AI.** Still correct, still the strongest line |
+
+**Why the metadata was stripped:** an independent run proved the AI flags units,
+eBC and the time zone unprompted *because those things were written down for
+it*. Removing the README is not rigging the demo — real files do not come with
+one. What it then fails to ask about is the trap.
+
+**Still authoritative:** `prompt_script.md`, `trap_log.md`,
+`day_of_checklist.md`, `data_verification.md`, `rehearsal_2_comparison.md`.
+**Superseded:** the figure set in `prep/figures/` was built for slides 7/8/9/18/
+21 of the *old* narrative and the two-week window; the figures are still
+correct, but check they still match the talk before using them.
+`prep/data_dictionary.md` is the rich data description that used to ship to the
+live session. It no longer ships — but keep it open on your own screen during
+the demo, because it is where you look up what `H3O_C9H19O+` actually is.
+
+### Current stage branches in `prep/checkpoints/`
+
+```
+stage-1-architecture   ARCHITECTURE.md, no app
+stage-2-plots          series list + timeseries + weekday/weekend diurnal
+stage-3-notes          + notes appended to notes.json
+stage-4-report         + Word overview with provenance
+stage-5-correlations   + correlation panel
+stage-6-winddir-fix    + vector mean for wind direction  <- the reveal
+```
+
+Stages 2–5 deliberately carry the **naive** wind mean, because that is what a
+live build writes. Only stage 6 fixes it. All six verified runnable.
 
 ---
 
@@ -16,9 +61,23 @@
 | **Audience** | ~20 Master's and early-PhD students, atmospheric science background |
 | **Demo** | Live, audience-directed: Claude Code in VS Code builds a data-analysis tool from real measurement data, in front of the room |
 
-The point of the demo is **not** that the AI succeeds. It is that the AI produces
-plausible, runnable, confidently-worded output that is *wrong* in ways only a
-domain scientist catches. The prepared "traps" below are the teaching material.
+**Superseded premise (kept for the record).** This originally read: *"the point
+is not that the AI succeeds, but that it produces plausible, runnable,
+confidently-worded output that is wrong in ways only a domain scientist
+catches."*
+
+That is no longer the premise, for two reasons. First, the audience has mostly
+never seen vibe coding, so **watching the tool build a working GUI from nothing
+is itself the content**. Second, an independent run showed the AI catches most
+planted traps unaided, so betting the lecture on failure is the risky bet. The
+operative framing is now:
+
+> **The tool gets it right. You only know that because you checked — and every
+> check required atmospheric science. Expertise did not become optional; it
+> moved from doing the analysis to auditing it.**
+
+One trap does still survive reliably — wind direction averaged as a scalar —
+and it is the centrepiece. See `trap_log.md`.
 
 ---
 
@@ -38,7 +97,7 @@ lecture with AI.
 > ⚠️ **Remote risk, handled 2026-09-19.** This folder is a git repo with a
 > GitHub remote (`github.com/GGkatzelis/FZJ-Condenses-Course-on-AI`) and had no
 > `.gitignore`. A `.gitignore` now excludes `*.csv`, `data_original/`,
-> `prep/rehearsal_*/` and `prep/checkpoints/`. **Do not relax those rules.**
+> `prep/sandbox/` and `prep/checkpoints/`. **Do not relax those rules.**
 > Verify with `git check-ignore -v <file>` before any commit.
 
 ### What Georgios reported about the file (to be reproduced, not trusted)
@@ -113,8 +172,12 @@ FZJ-Condenses-Course-on-AI/
     prompt_script.md
     trap_log.md
     day_of_checklist.md
-    checkpoints/                        git repo, branches stage-3a ... stage-3e
-    rehearsal_1/  rehearsal_2/
+    checkpoints/                        git repo, branches stage-1 ... stage-6
+    sandbox/                            runnable copy of the current build
+    reference_build/                    app.py + ARCHITECTURE.md (tracked)
+    gui_prompt.md / .txt                the prompts to paste, copy-paste ready
+    data_dictionary.md                  your own on-stage column reference
+    sandbox/                            runnable copy of the current build
   live_template/                        CLEAN START FOR THE LIVE DEMO — NO ANSWERS
 ```
 
@@ -202,7 +265,7 @@ first and report if it is poor.
 
 ## 5. Rehearsal
 
-Copy `live_template/` → `prep/rehearsal_1/`, open it as the working context,
+Copy `live_template/` → `prep/sandbox/`, open it as the working context,
 and run the demo exactly as Thursday will go.
 
 | Segment | Budget | Goal |
@@ -224,7 +287,7 @@ cannot lose them. The report reads the notes from that file.
 - `prep/trap_log.md` — where each trap surfaced (or didn't), what the AI said,
   how long each step took, where anything stalled.
 - `prep/checkpoints/` — git repo of the rehearsal build, branches
-  `stage-3a` ... `stage-3e`, each a working state, plus the one-line command to
+  `stage-1-architecture` ... `stage-6-winddir-fix`, each a working state, plus the command to
   switch to each. **If the live build stalls, switch branch instead of waiting.**
 
 **Run the rehearsal twice.** Run 2 starts from scratch with the finished prompt
@@ -261,7 +324,7 @@ Must cover:
 
 ### GUI: Streamlit — agreed, and here is the argument
 
-Recommended, and it is what the reference build uses (`prep/rehearsal_1/app.py`).
+Recommended, and it is what the reference build uses (`prep/reference_build/app.py`).
 
 **Why Streamlit over the alternatives, for *this* use:**
 
@@ -282,7 +345,7 @@ Recommended, and it is what the reference build uses (`prep/rehearsal_1/app.py`)
 
 **What it costs, and why it is acceptable here:**
 
-- **32 s cold start.** Mitigated by starting it before the audience is watching.
+- **13.6 s first launch** with 881 columns. Mitigated by warming the imports the night before.
 - Reruns the whole script on every interaction — irrelevant at 672 rows, and
   `@st.cache_data` covers the read.
 - Widget state lives in `st.session_state` and is lost on restart. **This is
@@ -297,7 +360,7 @@ report are the same object.
 Originally the plan was to ship a ready-made `.venv`. Abandoned — see
 `trap_log.md`. Copying 381 MB of small files took **4 min 19 s** on this machine
 and Pillow's DLL failed to load at a long destination path. `live_template/` is
-now 190 kB and copies instantly; building the environment from a warm `uv`
+now 20.4 MB (a single CSV, which copies in seconds); building the environment from a warm `uv`
 cache takes **41 s**. That is the day-of procedure.
 
 ### `scipy` is a hard requirement

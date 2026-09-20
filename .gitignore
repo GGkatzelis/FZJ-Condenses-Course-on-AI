@@ -27,6 +27,7 @@ data_original/
 
 # Rehearsal scratch (contains data copies)
 prep/rehearsal_*/
+prep/sandbox/
 prep/checkpoints/
 
 # Environments

@@ -17,7 +17,7 @@ $src = "$env:USERPROFILE\Desktop\My Folders\My Coding\Python\GitHub\FZJ-Condense
 Copy-Item -Recurse $src "$env:USERPROFILE\Desktop\MONALISA_live"
 ```
 
-Copies in about a second — 190 kB, no venv inside.
+Copies in a few seconds — 20.4 MB (one CSV), no venv inside.
 
 ### 2. Build the environment inside it (~41 s)
 
@@ -52,30 +52,42 @@ cd "$env:USERPROFILE\Desktop\MONALISA_live"
 Select-String -Path CLAUDE.md,requirements.txt -Pattern "trap|correct|shift|offset|noon|duplicate|local time|UTC|time zone"
 ```
 
-**Expected: exactly one hit** — "global solar radiation", which is just the
-variable's name. Anything else, stop and fix it.
+**Expected: no hits at all.** `live_template/CLAUDE.md` is now three lines: the
+data are unpublished, and where the venv is. No units, no instrument, no site
+description, no column list, no time zone. Anything else, stop and fix it.
 
 Also confirm the folder contains **no** `app.py`, `notes.json`, `prompts.json`
 or `.git`.
 
-### 5. Start the app once, cold, and leave it
+### 5. Warm the import cache
 
-Cold start is **32 s**. Do it now, not in front of the room.
+The live folder has no `app.py` yet — the whole point is that you build it on
+stage. But the first Streamlit launch pays a **13.6 s** import cost, and you do
+not want that happening cold in front of the room. Warm it now:
 
 ```powershell
-.venv\Scripts\python.exe -m streamlit run app.py
+.venv\Scripts\python.exe -c "import streamlit, matplotlib.pyplot, pandas, docx, scipy; print('warm')"
 ```
 
-(There is no `app.py` yet — that is fine, this is just to warm the import cache.
-Do it after stage A exists, or run the import check in step 2 instead.)
+Then, once segment C has produced `app.py`, the launch is quick. If you want to
+be certain, run the fallback app once and close it:
+
+```powershell
+Copy-Item ..\MONALISA_fallback\app.py .\_warmup.py
+.venv\Scripts\python.exe -m streamlit run _warmup.py    # Ctrl+C, then:
+Remove-Item .\_warmup.py
+```
+
+**Do not leave `_warmup.py` in the folder.**
 
 ### 6. Record the backup screen recording
 
-**⚠️ Do this after rehearsal 2 and before you go to bed.** If the live demo
-fails completely, you play the recording and narrate over it. Nobody will know.
+**⚠️ Do this after you have walked the demo yourself, and before you go to
+bed.** If the live demo fails completely, you play the recording and narrate
+over it. Nobody will know.
 
 - Xbox Game Bar: `Win + Alt + R`, or OBS if you want the webcam too
-- Record the **whole demo, all five segments**, at the projector resolution
+- Record the **whole demo, all six segments A–F**, at the projector resolution
 - Save it as `Desktop\MONALISA_demo_backup.mp4` and **open it once to confirm it
   plays** with audio
 - Also export the slides to PDF as a second fallback
@@ -113,7 +125,10 @@ fails completely, you play the recording and narrate over it. Nobody will know.
 
 ### Files and windows
 
-- [ ] `prompt_script.md` open **on your laptop screen only**, never mirrored
+- [ ] `prompt_script.md` and **`gui_prompt.txt`** open **on your laptop screen
+      only**, never mirrored. `gui_prompt.txt` is what you paste from
+- [ ] `data_dictionary.md` open too — it is where you look up what any ion
+      column actually is when someone asks
 - [ ] Close every unrelated window and tab
 
 ### `prompts.json` — do NOT put it in the live folder before you start
@@ -142,11 +157,15 @@ not hunt for windows live.
 |---|---|---|
 | 1 | **Slides** (PowerPoint, presenter view) | throughout |
 | 2 | **VS Code** with Claude Code | all segments |
-| 3 | **Browser** at `localhost:8501` | B, C, D |
+| 3 | **Browser** at `localhost:8501` | C, D, F |
 | 4 | **Word** — opens on its own for the report | E only |
-| 5 | **File Explorer** at the live folder | E, to show the .docx appear |
+| 5 | **File Explorer** at the live folder | B and E, to show files appear |
 
 Rehearse the switch 1 → 2 → 3 once before the room fills.
+
+**File Explorer earns its place in segment B.** This audience has never watched
+a tool write its own files. Having the folder visible when `ARCHITECTURE.md`
+and then `app.py` appear is a large part of the effect.
 
 ---
 
@@ -155,21 +174,26 @@ Rehearse the switch 1 → 2 → 3 once before the room fills.
 The fallback is always the same two lines. From the live folder:
 
 ```powershell
-git -C ..\MONALISA_fallback checkout -q stage-3c
+git -C ..\MONALISA_fallback checkout -q stage-3-notes
 Copy-Item -Force ..\MONALISA_fallback\app.py .
 ```
 
 Streamlit reloads on save, so the app is back in seconds. Substitute the stage
 you need.
 
-| Segment | If it stalls | Say this |
-|---|---|---|
-| **A** load and inspect | Fall back to `stage-3a`. Worst case, describe the file from the Overview table on the slide | *"Let's not watch it type — here's what it found."* |
-| **B** time series / diurnals | `stage-3b`. If the audience's pick misbehaves, switch to **option 1** (toluene + NO), which is the most rehearsed | *"That one's interesting for a different reason — let's come back to it."* |
-| **B4** the rainfall total | **Expect it to get this right** — rehearsal 2 did, unprompted, and produced the insolation-ceiling argument itself. Credit it, show the raw duplicated rows anyway, then hand the verification to the room. See the "if it catches it" branch in `prompt_script.md` | *"It got that right, and explained why. How would* you *have known?"* |
-| **C** correlations | `stage-3c`. If the split-by-hour prompt fails, the numbers are on slide 8 — put the slide up and use those | *"We have this one prepared — here's the same analysis."* |
-| **D** notes panel | `stage-3d`. If the form breaks, collect interpretations **on the whiteboard** and type them in later. Do not lose the segment — it is the one where the room owns something | *"Let's just write them up here."* |
-| **E** Word report | `stage-3e`. If the .docx will not build, open the rehearsal report from the fallback folder and scroll to Provenance. The closing point is the *content* of that section, not the act of generating it | *"Here's one from the rehearsal — the section I want you to see is at the end."* |
+| Segment | Fall back to | If it stalls | Say this |
+|---|---|---|---|
+| **A** read and describe | — | No app exists yet, so nothing to restore. Describe the file yourself from `data_verification.md` and move to the "what did it *not* ask?" pause, which is the valuable part anyway | *"Let's not watch it type — here's what it found."* |
+| **B** architecture | `stage-1-architecture` | Open the prepared `ARCHITECTURE.md` from the fallback folder and read it as if it had just been written | *"It's written its plan — let's look at it."* |
+| **C** the GUI | `stage-2-plots` | If the audience's pick misbehaves, switch to **option 1** (toluene + `gas_NO`), the most rehearsed. **If the wind-direction fix itself fails, switch to `stage-6-winddir-fix`** — that jump shows the corrected curve immediately, which is the beat that matters | *"Let me show you the version where that's fixed."* |
+| **D** notes | `stage-3-notes` | If the form breaks, collect interpretations **on the whiteboard** and type them in later. Do not lose this segment — it is the one where the room owns something | *"Let's just write them up here."* |
+| **E** Word overview | `stage-4-report` | If the .docx will not build, open the prepared one from the fallback folder and scroll to Provenance. The closing point is the *content* of those two rows, not the act of generating them | *"Here's one from the rehearsal — the part I want you to see is at the end."* |
+| **F** correlations | `stage-5-correlations` | **Drop it.** It is the designed casualty. The numbers are in `prompt_script.md` if you want to state them verbally | *"We're out of time for that one — ask me afterwards."* |
+| **Anything, catastrophically** | — | Play `MONALISA_demo_backup.mp4` and narrate | *"The live version is having a moment — luckily I recorded one."* |
+
+**Note on the wind-direction reveal.** It happens in segment C and it is the
+centrepiece, so protect it: if you are running short, cut **F** and then **B**,
+never C.
 | **Anything, catastrophically** | Play `MONALISA_demo_backup.mp4` and narrate | *"The live version is having a moment — luckily I recorded one."* |
 
 ### If Claude Code itself is down or rate-limited
@@ -183,23 +207,30 @@ workflow you cannot check"*.
 
 ## Known risks, ranked
 
-0. **Scope creep, not failure, is the schedule risk.** Rehearsal 2 wrote
-   **1161 lines** and **7 tabs** where rehearsal 1 wrote ~370 and 6 — three
-   times the code, from the same prompts. That will not fit 32 minutes. Add
-   *"keep it minimal, one tab, no extras"* to the prompts, be ready to
-   interrupt, and use the checkpoint branches as a **time** fallback rather
-   than a crash fallback. Never promise the audience a specific layout.
-1. **Streamlit's 32 s cold start.** Start it before the audience is watching.
-2. **The time-zone pushback in segment B3.** The wrong reading looks *more*
-   convincing than the right one. Have the NO₂-at-08:00-local answer ready —
-   see [trap_log.md](trap_log.md), Trap 2.
-3. **The duplication trap needs prompt B4.** Every mean and median is immune to
-   it. Skip B4 and the trap never appears.
-4. **`scipy`.** Already fixed and pinned. If you ever rebuild the environment
-   from something other than `requirements.txt`, check it is there — the
-   correlation tab dies without it, and only when that tab renders.
-5. **A running server is not a working app.** Streamlit returns HTTP 200 with a
+1. **Scope creep, not failure, is the schedule risk.** An independent run wrote
+   **1,161 lines and 7 tabs** from equivalent prompts, where the first wrote
+   370 and 6. That will not fit 32 minutes. Keep the *"minimal — no extra
+   features"* clause on every build prompt, interrupt when it embellishes, and
+   treat the stage branches as a **time** fallback, not just a crash fallback.
+   Never promise the room a specific layout.
+2. **Protect the wind-direction reveal in segment C.** It is the centrepiece
+   and the only trap that reliably survives. If you are short, cut **F**, then
+   **B** — never C.
+3. **Getting wind direction on screen at all.** It only works if that series is
+   selected. If the room picks something else, steer there yourself: *"let's add
+   the wind — direction tells us where the pollution came from."*
+4. **The duplication trap will not appear by itself.** Every mean and median is
+   immune; only a **sum** doubles, and the GUI has no sums. You must ask *"how
+   much rain fell over the campaign?"* or skip it.
+5. **13.6 s first Streamlit launch** with 881 columns. Warm the imports the
+   night before (step 5).
+6. **`scipy`.** Pinned. If you ever rebuild the environment from anything other
+   than `requirements.txt`, check it is present — the correlation panel dies
+   without it, and only at the moment that panel renders.
+7. **A running server is not a working app.** Streamlit returns HTTP 200 with a
    completely broken script. Look at the page, not the port.
+8. **880 series in the picker.** Always filter by family or name first; the list
+   caps at 300 entries and will feel broken if you forget.
 
 ---
 
