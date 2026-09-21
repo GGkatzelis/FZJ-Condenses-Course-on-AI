@@ -1,8 +1,9 @@
 """Generate the stage builds for the live demo and commit each to
 prep/checkpoints on its own branch, as a linear history.
 
-Build order follows prompt_script.md (there is no architecture segment any
-more - block 2 asks for a spoken summary instead of a document):
+Build order follows prompt_script.md. Correlations now come BEFORE notes,
+because the notes prompt wires notes into both panels at once and the
+correlation argument is the one worth writing down:
   stage-2-plots         left list + timeseries + weekday/weekend diurnal
   stage-3-notes         + notes saved to notes.json
   stage-4-report        + Word overview with provenance
@@ -32,14 +33,14 @@ MARK = {"Time series": "# ---- Time series + diurnal ----",
 STAGES = [
     ("stage-2-plots", ["Time series"], False, False,
      "left-hand series list, timeseries and weekday/weekend diurnal"),
-    ("stage-3-notes", ["Time series"], True, False,
-     "+ per-series notes appended to notes.json"),
-    ("stage-4-report", ["Time series", "Overview report"], True, False,
-     "+ Word overview with automatic provenance"),
-    ("stage-5-correlations", ["Time series", "Correlations", "Overview report"],
-     True, False, "+ correlation panel"),
-    ("stage-6-winddir-fix", ["Time series", "Correlations", "Overview report"],
-     True, True, "+ vector mean for wind direction (the reveal)"),
+    ("stage-3a-correlations", ["Time series", "Correlations"], False, False,
+     "+ correlation panel"),
+    ("stage-3b-notes", ["Time series", "Correlations"], True, False,
+     "+ notes, working on both the series and the correlation panel"),
+    ("stage-4-report", ["Time series", "Correlations", "Overview report"], True,
+     False, "+ Word overview with automatic provenance"),
+    ("stage-5-winddir-fix", ["Time series", "Correlations", "Overview report"],
+     True, True, "+ vector mean for wind direction (contingency only)"),
 ]
 
 ARCH = """# Architecture
@@ -112,6 +113,9 @@ def build(keep, with_notes, circular) -> str:
                       r"(?:.*?\n)*?(?=\n# ----|\Z)", "\n", text)
         text = text.replace('left, right = st.columns([1.05, 1])',
                             'left, = st.columns(1)')
+        # and the correlation-panel note form, so a pre-notes stage has none
+        text = re.sub(r"\n    with st\.form\(\"note_corr\"(?:.*?\n)*?(?=\n# ----|\Z)",
+                      "\n", text)
 
     names = [n for n in SECTIONS if n in keep]
     lo = text.index("tab_ts, tab_corr, tab_report = st.tabs(")

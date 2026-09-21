@@ -1,7 +1,7 @@
 # Reference build
 
 `app.py` is the finished state of the demo app — what a good live run should
-produce by the end of segment F. It matches the `stage-6-winddir-fix` branch,
+produce by the end of segment E. It matches the `stage-5-winddir-fix` branch,
 so it uses the **vector mean** for wind direction.
 
 It is kept here, outside `prep/sandbox/`, so that it is tracked in git: the
@@ -26,17 +26,22 @@ also ignored here):
 | Branch | Segment | Lines | Tabs |
 |---|---|---|---|
 | `stage-2-plots` | B | 234 | 1 |
-| `stage-3-notes` | C | 249 | 1 |
-| `stage-4-report` | D | 344 | 2 |
-| `stage-5-correlations` | F | 370 | 3 |
-| `stage-6-winddir-fix` | — | 370 | 3 |
+| `stage-3a-correlations` | C1 | 254 | 2 |
+| `stage-3b-notes` | C2 | 275 | 2 |
+| `stage-4-report` | D | 370 | 3 |
+| `stage-5-winddir-fix` | — | 370 | 3 |
 
-Stages 2–5 deliberately carry the **naive** arithmetic mean for wind direction,
-because that is what a live build might write. Only `stage-6` corrects it. In
-the 2026-09-20 trial the tool used a vector mean unaided, so stage 6 is a
-contingency rather than an expected step.
+Correlations come before notes because the notes prompt wires notes into both
+panels at once, and because the correlation is the thing worth writing a note
+about.
 
-There is no architecture stage: block 2 of `gui_prompt.txt` asks for a spoken
-summary before coding rather than an `ARCHITECTURE.md` file.
+Stages 2–4 deliberately carry the **naive** arithmetic mean for wind direction,
+because that is what a live build might write. Only `stage-5-winddir-fix`
+corrects it. In the 2026-09-20 trial the tool used a vector mean unaided, so
+that stage is a contingency rather than an expected step.
+
+There is no architecture *stage*: block 2 asks for a spoken summary before
+coding. `ARCHITECTURE.md` is written in segment E instead, alongside the
+README, once there is something real to describe.
 
 Regenerate all of them with `prep/scripts/make_checkpoints.py`.

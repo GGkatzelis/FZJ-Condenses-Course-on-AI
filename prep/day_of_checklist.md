@@ -175,7 +175,7 @@ existed an hour ago. It is more persuasive than any of the plots.
 The fallback is always the same two lines. From the live folder:
 
 ```powershell
-git -C ..\MONALISA_fallback checkout -q stage-3-notes
+git -C ..\MONALISA_fallback checkout -q stage-3b-notes
 Copy-Item -Force ..\MONALISA_fallback\app.py .
 ```
 
@@ -185,16 +185,18 @@ you need.
 | Segment | Fall back to | If it stalls | Say this |
 |---|---|---|---|
 | **A** the audit | — | No app exists yet, so nothing to restore. Describe the file yourself from `data_verification.md`, then go to the "what did it *not* ask?" pause, which is the valuable part anyway | *"Let's not watch it type — here's what it found."* |
-| **B** the GUI | `stage-2-plots` | If the audience's pick misbehaves, switch to **option 1** (toluene + `gas_NO`), the most rehearsed. If it used a plain mean on wind direction, paste the contingency block — or jump to `stage-6-winddir-fix` to show the corrected curve at once | *"Let me show you the version where that's handled."* |
-| **C** notes | `stage-3-notes` | If the form breaks, collect interpretations **on the whiteboard** and type them in later. Do not lose this segment — it is the one where the room owns something | *"Let's just write them up here."* |
+| **B** the GUI | `stage-2-plots` | If the audience's pick misbehaves, switch to **option 1** (toluene + `gas_NO`), the most rehearsed. If it used a plain mean on wind direction, paste the contingency block — or jump to `stage-5-winddir-fix` to show the corrected curve at once | *"Let me show you the version where that's handled."* |
+| **C** correlations + notes | `stage-3a-correlations`, then `stage-3b-notes` | Two pastes, so two fallback points. If the notes form breaks, collect interpretations **on the whiteboard** and type them in later — do not lose this segment, it is where the room owns something. The r values are in `prompt_script.md` C1 if the panel itself fails | *"Let's just write them up here."* |
 | **D** Word report | `stage-4-report` | If the .docx will not build, open the prepared one from the fallback folder and scroll to Provenance. The point is the *content* of those rows, not the act of generating them | *"Here's one from the rehearsal — the part I want you to see is at the end."* |
 | **E** the reveal | — | Needs no code. If the README comes out thin, read the **provenance table** from the .docx instead — it carries the same judgement calls. Worst case, just show the folder tree and say the line about one CSV and three lines of text | *"Look at what's in this folder that wasn't there an hour ago."* |
-| **F** correlations | `stage-5-correlations` | **Drop it.** It is the designed casualty; the numbers are in `prompt_script.md` if you want them verbally | *"We're out of time for that one — ask me afterwards."* |
 | **Anything, catastrophically** | — | Play `MONALISA_demo_backup.mp4` and narrate | *"The live version is having a moment — luckily I recorded one."* |
 
-**What to protect if you run short.** The order to cut is **F**, then trim the
-audience discussion in **B1**. Never cut **A** (the audit is the point) or
-**E** (the finale, and it costs 3 minutes).
+**What to protect if you run short.** Merging correlations into the notes
+segment removed the droppable beat, so the cuts are now inside segments:
+**ARCHITECTURE.md** in block 5 (~1.5 min), then **one audience note instead of
+three** in C2 (~2 min), then **skip the B1 menu** and pick option 1 yourself
+(~2 min). That gets 36 min down to about 30. Never cut segment **A**, the
+correlation argument in **C1**, or the README.
 | **Anything, catastrophically** | Play `MONALISA_demo_backup.mp4` and narrate | *"The live version is having a moment — luckily I recorded one."* |
 
 ### If Claude Code itself is down or rate-limited
@@ -217,7 +219,11 @@ workflow you cannot check"*.
 2. **The audit is the centrepiece now, not a trap.** Segment A carries the
    lecture. Give it its full 12 minutes and do not fill the silence while it
    profiles 881 columns.
-3. **The `n_met` moment may not fire** on the trimmed file — 2 + 2 rows is a
+3. **No droppable segment any more.** 36 min against a 32 min budget. The cut
+   order is inside the segments — see "What to protect" above. Decide before
+   you start whether you have 36 minutes; if not, cut ARCHITECTURE.md now
+   rather than improvising at minute 30.
+4. **The `n_met` moment may not fire** on the trimmed file — 2 + 2 rows is a
    weak signal. Have the fallback line ready; see `prompt_script.md` A3.
 4. **Getting wind direction on screen** still matters for B2, since the four
    judgement calls hang off it. If the room picks something else, steer there:

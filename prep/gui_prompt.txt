@@ -1,5 +1,7 @@
 MONALISA live demo - paste blocks, in order.
-One block per segment. Paste only what is between the banner lines.
+Paste only what is between the banner lines.
+
+Segment C has TWO pastes (3a then 3b). Everything else is one paste each.
 
 
 ================================================================
@@ -49,19 +51,40 @@ for, no extra features.
 
 
 ================================================================
-BLOCK 3 - NOTES                                  segment C, 5 min
+BLOCK 3a - CORRELATIONS                    segment C, 8 min total
 ================================================================
 
-Add a box where I can type a note about whichever series I am currently looking
-at, together with who said it. Save every note to a JSON file on disk the
-moment I press save, organised one entry per series, so that restarting the app
-cannot lose anything. Show the notes for the selected series underneath the
-plots.
+Add a separate panel where I can choose any two series and see them plotted
+against each other, coloured by hour of day, with the correlation coefficient
+and the number of points.
 
 Keep it minimal - no extra features.
 
-  -> then collect two or three interpretations from the room and type them in
-     VERBATIM. Show them notes.json in the editor afterwards.
+  -> put benzene (H3O_C6H7+) against monoterpenes (H3O_C10H17+). r = 0.86.
+     Then ask the room: DO THESE SHARE A SOURCE?
+     They do not. 0.95 at night against 0.50 at midday, and both anticorrelate
+     with wind speed. That is shared dilution, not shared chemistry.
+     THIS is the argument worth writing down. Hold it for 3b.
+
+
+================================================================
+BLOCK 3b - NOTES                              segment C, same 8 min
+================================================================
+
+Add a box where I can type a note about whatever I am currently looking at,
+together with who said it - and make it work in both places: against a selected
+series in the time-series panel, and against the pair I have chosen in the
+correlation panel. Save every note to a JSON file on disk the moment I press
+save, organised one entry per series or pair, so that restarting the app cannot
+lose anything. Show the notes for the current selection underneath the plots.
+
+Keep it minimal - no extra features.
+
+  -> now take the correlation argument from the room and type it in VERBATIM.
+     Good asks:
+       "So what should we write down about that correlation?"
+       "Which number in that argument would you check first, and how?"
+     Then show them notes.json in the editor.
 
 
 ================================================================
@@ -69,9 +92,9 @@ BLOCK 4 - THE WORD REPORT                        segment D, 4 min
 ================================================================
 
 Add a button that turns those notes into a Word document: one section per
-series with its notes and some basic statistics, the plots that are currently
-on screen, and a provenance section recording which file the data came from,
-what period it covers, and how it was processed.
+series or pair with its notes and some basic statistics, the plots that are
+currently on screen, and a provenance section recording which file the data
+came from, what period it covers, and how it was processed.
 
 Keep it minimal - no extra features.
 
@@ -105,13 +128,18 @@ for what we have built:
 
 
 ================================================================
-BLOCK 6 - CORRELATIONS            segment F, 3 min - DROP FIRST
+IF YOU ARE RUNNING OVER - cut in this order
 ================================================================
 
-Add a separate panel where I can choose any two series and see them plotted
-against each other, with the correlation coefficient and the number of points.
+Merging correlations into the notes segment removed the designed casualty, so
+there is no longer a whole segment to drop. Cut in this order instead:
 
-Keep it minimal - no extra features.
+  1. ARCHITECTURE.md in block 5 - ask for README.md only.        saves ~1.5 min
+  2. Take one audience note in 3b instead of two or three.       saves ~2 min
+  3. Skip the B1 menu - pick option 1 (toluene + gas_NO) yourself. saves ~2 min
+
+Never cut: block 1 (the audit is the point), the correlation argument in 3a,
+or the README.
 
 
 ================================================================
@@ -137,7 +165,8 @@ Loses every pause and gives one long silent build with no partial result.
 Read the CSV in data/, then build a Streamlit app for browsing it. A filterable
 list of all the series down the left. When I select up to four, show the time
 series and the mean diurnal cycle with weekdays and weekends separately. A
-separate panel for correlating any two series. A box to type notes against the
-selected series, appended to a JSON file on disk immediately. A button that
-builds a Word document from those notes with the figures, basic statistics and a
-provenance section. Keep it minimal.
+separate panel for correlating any two series, coloured by hour of day. A box to
+type notes against either a selected series or a correlation pair, appended to a
+JSON file on disk immediately. A button that builds a Word document from those
+notes with the figures, basic statistics and a provenance section. Keep it
+minimal.

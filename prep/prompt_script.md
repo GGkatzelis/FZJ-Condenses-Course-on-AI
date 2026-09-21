@@ -27,14 +27,20 @@ Nothing about units, instrument, site, columns or time zone.
 |---|---|---|---|
 | **A · the audit** | 1 | **12 min** | its findings on screen, including one you didn't know |
 | **B · the GUI** | 2 | 8 min | working browser, **the four judgement calls** |
-| C · notes | 3 | 5 min | `notes.json` in the room's own words |
+| **C · correlations + notes** | 3a, 3b | **8 min** | the room's own argument about r = 0.86, in `notes.json` |
 | D · Word report | 4 | 4 min | the .docx, provenance open |
 | **E · the reveal** | 5 | 4 min | **README.md + ARCHITECTURE.md + the folder tree — the finale** |
-| F · correlations | 6 | 3 min | *drop this first* |
 
-**33 min without F, 36 with it.** The demo budget is 32, so F is not optional
-filler — it is the thing that makes the arithmetic work. Drop it by default and
-run it only if you are ahead.
+**36 min total.** Correlations and notes were merged deliberately: a correlation
+gives the room something genuinely arguable to write down, where a timeseries
+mostly answers itself.
+
+> ⚠️ **That merge removed the droppable segment.** There is no longer a whole
+> beat to cut if you run over — the cut order is now *inside* the segments, and
+> it is written out at the end of `gui_prompt.txt`: drop `ARCHITECTURE.md`
+> (~1.5 min), then take one audience note instead of three (~2 min), then skip
+> the B1 menu and pick option 1 yourself (~2 min). That gets you to ~30 min.
+> **Never cut** block 1, the correlation argument in 3a, or the README.
 
 **Build step by step, one block per segment.** Watching it correctly modify code
 it wrote ten minutes ago is the moment the penny drops for an audience that has
@@ -194,18 +200,50 @@ Now turn it:
 
 ---
 
-## Segment C · notes · 5 min
+## Segment C · correlations + notes · 8 min
 
-Paste **block 3**, then **take two or three interpretations from the room and
-type them verbatim.**
+**Two pastes, one segment.** Correlations first, so the room has something worth
+arguing about before you ask them to write anything down.
 
-- *"Which of those four decisions would you change, and why?"* ← the best note
-  you will get
-- *"Why does the weekend curve drop but not flatten?"*
-- *"What would you need before this went in a paper?"*
+### C1 — paste block 3a, the correlation panel
 
-Show them `notes.json`. Seeing their own sentence become structured data lands
-with people who have never done this.
+Then put **benzene (`H3O_C6H7+`) against monoterpenes (`H3O_C10H17+`)** and ask:
+
+> **"r is 0.86. Do these two share a source?"**
+
+They do not. Verified on this file:
+
+| | r | n |
+|---|---|---|
+| all points | **0.860** | 1,164 |
+| night 00–05 | **0.945** | 295 |
+| midday 11–16 | **0.499** | 288 |
+
+and both anticorrelate with wind speed (benzene **−0.41**, monoterpenes
+**−0.31**). The correlation is strongest when the air is stagnant and weakest
+when it is windy and the boundary layer is deep. That is **shared dilution, not
+shared chemistry** — they rise and fall together because the same shallow
+nocturnal layer concentrates everything, not because anything emits both.
+
+**This is the argument worth writing down.** Hold it for C2.
+
+> If a student pushes for a decisive test: monoterpenes here show **no**
+> temperature dependence (r = −0.017) while isoprene in the same file does
+> (**+0.229**). Same instrument, same period — so the monoterpene signal is not
+> biogenic, which is a physical falsification rather than another coefficient.
+
+### C2 — paste block 3b, the notes box
+
+It wires notes into **both** panels: against a selected series, and against a
+correlation pair. Then take the argument from the room and **type it verbatim**.
+
+- *"So what should we write down about that correlation?"*
+- *"Which number in that argument would you check first, and how?"*
+
+Show them `notes.json` in the editor afterwards. Seeing their own sentence become
+structured data lands with people who have never done this.
+
+→ fallbacks: `stage-3a-correlations`, then `stage-3b-notes`
 
 ---
 
@@ -279,15 +317,6 @@ it up as the very last thing on screen.
 >
 > `README.md` is requested **before** `ARCHITECTURE.md` on purpose: it carries
 > the judgement calls, so it is the one you want if generation runs long.
-
----
-
-## Segment F · correlations · 3 min · **drop this first**
-
-| Pair | Result (verified) |
-|---|---|
-| `H3O_C6H7+` vs `H3O_C10H17+` | r = **0.86** overall — but **0.95 at night**, **0.50 at midday**, both anticorrelated with wind speed. Dilution, not a shared source |
-| `NH4_C3H10NO+` vs `H3O_C3H7O+` | r = **0.88** — and it is **the same compound measured twice**. What does r even mean here? |
 
 ---
 

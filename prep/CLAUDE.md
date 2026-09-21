@@ -32,14 +32,14 @@ check before reusing), `rehearsal_2_comparison.md` (superseded by the trial).
 
 ```
 stage-2-plots          series list + timeseries + weekday/weekend diurnal
-stage-3-notes          + notes appended to notes.json
+stage-3a-correlations  + correlation panel
+stage-3b-notes         + notes, on both the series and the correlation panel
 stage-4-report         + Word overview with provenance
-stage-5-correlations   + correlation panel
-stage-6-winddir-fix    + vector mean for wind direction
+stage-5-winddir-fix    + vector mean for wind direction (contingency only)
 ```
 
-All five verified runnable on the trimmed data: 234 -> 249 -> 344 -> 370 lines,
-and only `stage-6` uses the vector mean.
+All five verified runnable on the trimmed data: 234 -> 254 -> 275 -> 370 lines,
+and only `stage-5-winddir-fix` uses the vector mean.
 
 ### Desktop state (built and tested 2026-09-20)
 
@@ -290,7 +290,7 @@ cannot lose them. The report reads the notes from that file.
 - `prep/trap_log.md` — where each trap surfaced (or didn't), what the AI said,
   how long each step took, where anything stalled.
 - `prep/checkpoints/` — git repo of the rehearsal build, branches
-  `stage-2-plots` ... `stage-6-winddir-fix`, each a working state, plus the command to
+  `stage-2-plots` ... `stage-5-winddir-fix`, each a working state, plus the command to
   switch to each. **If the live build stalls, switch branch instead of waiting.**
 
 **Run the rehearsal twice.** Run 2 starts from scratch with the finished prompt

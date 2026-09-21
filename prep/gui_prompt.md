@@ -18,10 +18,15 @@ which is what you should actually paste from — are in
 |---|---|---|
 | 1 · the audit | A | 12 min |
 | 2 · the GUI: list + two plots | B | 8 min |
-| 3 · notes | C | 5 min |
+| **3a · correlations** | **C** | **8 min for both** |
+| **3b · notes** | **C** | |
 | 4 · the Word report | D | 4 min |
 | 5 · the reveal | E | 4 min |
-| 6 · correlations | F | 3 min — **drop first** |
+
+Correlations and notes share one segment on purpose: a correlation gives the
+room something genuinely arguable, where a timeseries mostly answers itself.
+That merge also removed the droppable segment — the cut order is now inside the
+segments, at the end of `gui_prompt.txt`.
 
 ---
 
@@ -84,21 +89,37 @@ for, no extra features.
 
 ---
 
-## Block 3 · notes
+## Block 3a · correlations
 
 ```
-Add a box where I can type a note about whichever series I am currently looking
-at, together with who said it. Save every note to a JSON file on disk the
-moment I press save, organised one entry per series, so that restarting the app
-cannot lose anything. Show the notes for the selected series underneath the
-plots.
+Add a separate panel where I can choose any two series and see them plotted
+against each other, coloured by hour of day, with the correlation coefficient
+and the number of points.
+
+Keep it minimal - no extra features.
+```
+
+Put benzene against monoterpenes — **r = 0.86** — and ask whether they share a
+source. They do not: 0.95 at night against 0.50 at midday, and both
+anticorrelated with wind speed. Shared dilution, not shared chemistry. Full
+numbers and the decisive temperature test in `prompt_script.md` C1.
+
+## Block 3b · notes
+
+```
+Add a box where I can type a note about whatever I am currently looking at,
+together with who said it - and make it work in both places: against a selected
+series in the time-series panel, and against the pair I have chosen in the
+correlation panel. Save every note to a JSON file on disk the moment I press
+save, organised one entry per series or pair, so that restarting the app cannot
+lose anything. Show the notes for the current selection underneath the plots.
 
 Keep it minimal - no extra features.
 ```
 
 *"The moment I press save"* is what gets you an atomic disk write rather than an
-in-memory list. Then collect two or three interpretations from the room and
-**type them in verbatim**, and show them `notes.json` in the editor.
+in-memory list. Then take the correlation argument from the room, **type it
+verbatim**, and show them `notes.json` in the editor.
 
 ---
 
@@ -156,17 +177,6 @@ the last thing they see.
 
 > If the README is vague about decisions, push once: *"be specific about how you
 > averaged each kind of column."* That reliably produces the four calls from B2.
-
----
-
-## Block 6 · correlations — **drop this first**
-
-```
-Add a separate panel where I can choose any two series and see them plotted
-against each other, with the correlation coefficient and the number of points.
-
-Keep it minimal - no extra features.
-```
 
 ---
 
