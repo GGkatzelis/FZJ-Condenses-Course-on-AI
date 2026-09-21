@@ -29,19 +29,25 @@ Nothing about units, instrument, site, columns or time zone.
 | **B · the GUI** | 2 | 8 min | working browser, **the four judgement calls** |
 | C · notes | 3 | 5 min | `notes.json` in the room's own words |
 | D · Word report | 4 | 4 min | the .docx, provenance open |
-| **E · the reveal** | 5 | 3 min | **README.md + the folder tree — the finale** |
+| **E · the reveal** | 5 | 4 min | **README.md + ARCHITECTURE.md + the folder tree — the finale** |
 | F · correlations | 6 | 3 min | *drop this first* |
+
+**33 min without F, 36 with it.** The demo budget is 32, so F is not optional
+filler — it is the thing that makes the arithmetic work. Drop it by default and
+run it only if you are ahead.
 
 **Build step by step, one block per segment.** Watching it correctly modify code
 it wrote ten minutes ago is the moment the penny drops for an audience that has
 never vibe-coded — a single big generation reads as fancy autocomplete and gives
 you no partial result if it goes wrong.
 
-There is no longer an `ARCHITECTURE.md` segment. Block 2 opens with *"before you
-write any code, tell me in one paragraph what you are about to build"* — the
-same catch-the-misunderstanding-early lesson, spoken in thirty seconds, without
-a document the room cannot yet evaluate. The structure reveal moved to the end,
-where it is a payoff rather than an abstraction.
+**`ARCHITECTURE.md` moved to the end, it did not disappear.** Block 2 opens with
+*"before you write any code, tell me in one paragraph what you are about to
+build"* — the catch-the-misunderstanding-early lesson, spoken in thirty seconds,
+without putting a document on the projector at minute ten when the room has not
+used the app and cannot evaluate a plan for it. The document itself is written
+in segment E, where it documents something real and is a payoff rather than an
+abstraction.
 
 Paste everything from [`gui_prompt.txt`](gui_prompt.txt).
 
@@ -224,22 +230,30 @@ Paste **block 4**. Open the .docx, scroll to **Provenance**.
 
 ---
 
-## Segment E · the reveal · 3 min — **the finale**
+## Segment E · the reveal · 4 min — **the finale**
 
 Bring **File Explorer** to the front, showing the live folder. Then paste
 **block 5**:
 
 ```
-We started this hour with one CSV and three lines of text. Write a README.md
-that explains what this tool does, how to run it, and what decisions you made
-while building it.
+We started this hour with one CSV and three lines of text. Write two documents
+for what we have built:
+
+- README.md - what this tool does, how to run it, and what decisions you made
+  while building it. Be specific about how you averaged each kind of column and
+  what you did with missing data.
+
+- ARCHITECTURE.md - how the pieces fit together. Include a diagram, drawn in
+  plain text, showing how the data flows from the CSV through to the plots, the
+  notes file and the Word report.
 ```
 
-Two things happen at once, and both matter.
+Three things happen at once, and all of them matter.
 
-**They watch the tree fill.** `app.py`, `README.md`, `notes.json`,
-`MONALISA_overview.docx` — none of which existed an hour ago. For an audience
-that has never seen this, the folder is more persuasive than any of the plots.
+**They watch the tree fill.** `app.py`, `README.md`, `ARCHITECTURE.md`,
+`notes.json`, `MONALISA_overview.docx` — none of which existed an hour ago. For
+an audience that has never seen this, the folder is more persuasive than any of
+the plots.
 
 > **"One CSV. Three lines of text telling it the data are unpublished and where
 > Python lives. Everything else in this folder, we talked into existence in
@@ -256,9 +270,15 @@ of them out loud from the README it just wrote, then close:
 >
 > **That is the job. It didn't go away. It moved."**
 
+**And the architecture diagram closes it.** Ask for it *in plain text* — an
+ASCII data-flow box diagram reads from the back row, where prose does not. Put
+it up as the very last thing on screen.
+
 > If the README is thin on decisions, push once: *"be specific about how you
-> averaged things and what you did with missing data."* That reliably produces
-> the four calls from B2.
+> averaged each kind of column."* That reliably produces the four calls from B2.
+>
+> `README.md` is requested **before** `ARCHITECTURE.md` on purpose: it carries
+> the judgement calls, so it is the one you want if generation runs long.
 
 ---
 

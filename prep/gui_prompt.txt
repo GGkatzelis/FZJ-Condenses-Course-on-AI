@@ -40,8 +40,12 @@ I want a small app for browsing this dataset:
 Build it with Streamlit, in app.py. Keep it minimal - just what I have asked
 for, no extra features.
 
-  -> run it:   .venv\Scripts\python.exe -m streamlit run app.py
+  -> run it FROM INSIDE the live folder:
+       .venv\Scripts\python.exe -m streamlit run app.py
      ~22 s to the first page. Talk over it.
+
+     Use THAT venv, not the shared one in "My Coding\Python\.venv" - the
+     shared one has no python-docx, so block 4's Word report would fail.
 
 
 ================================================================
@@ -77,16 +81,27 @@ Keep it minimal - no extra features.
 
 
 ================================================================
-BLOCK 5 - THE REVEAL                             segment E, 3 min
+BLOCK 5 - THE REVEAL                             segment E, 4 min
 ================================================================
 
-We started this hour with one CSV and three lines of text. Write a README.md
-that explains what this tool does, how to run it, and what decisions you made
-while building it.
+We started this hour with one CSV and three lines of text. Write two documents
+for what we have built:
+
+- README.md - what this tool does, how to run it, and what decisions you made
+  while building it. Be specific about how you averaged each kind of column and
+  what you did with missing data.
+
+- ARCHITECTURE.md - how the pieces fit together. Include a diagram, drawn in
+  plain text, showing how the data flows from the CSV through to the plots, the
+  notes file and the Word report.
 
   -> have File Explorer visible. They watch the tree fill up.
-     That last clause makes it state its own judgement calls in writing.
-     This is the finale - read two of those decisions out loud.
+     README is asked for FIRST on purpose: it carries the judgement calls, so
+     if you run out of time mid-generation that is the one you want.
+     Read two of those decisions out loud - the thesis, in its own words.
+     Then put the ARCHITECTURE diagram on screen as the last thing they see.
+     If the README is vague about decisions, push once:
+       be specific about how you averaged each kind of column.
 
 
 ================================================================

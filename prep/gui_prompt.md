@@ -20,7 +20,7 @@ which is what you should actually paste from — are in
 | 2 · the GUI: list + two plots | B | 8 min |
 | 3 · notes | C | 5 min |
 | 4 · the Word report | D | 4 min |
-| 5 · the reveal | E | 3 min |
+| 5 · the reveal | E | 4 min |
 | 6 · correlations | F | 3 min — **drop first** |
 
 ---
@@ -42,9 +42,10 @@ hanging. Do not fill it. Full staging in `prompt_script.md` A2–A4.
 
 ## Block 2 · the GUI
 
-Note the opening line. It replaces the old `ARCHITECTURE.md` segment: same
-catch-the-misunderstanding-early lesson, spoken in thirty seconds, with no
-document that the room cannot yet evaluate.
+Note the opening line. It does the job the old `ARCHITECTURE.md` segment did —
+catching a misunderstanding while it is still free — but spoken in thirty
+seconds, with no document the room cannot yet evaluate. The document itself is
+written in block 5, once there is something real to describe.
 
 ```
 Before you write any code, tell me in one paragraph what you are about to
@@ -125,18 +126,36 @@ Open the .docx and scroll to **Provenance**.
 ## Block 5 · ⭐ the reveal — the finale
 
 ```
-We started this hour with one CSV and three lines of text. Write a README.md
-that explains what this tool does, how to run it, and what decisions you made
-while building it.
+We started this hour with one CSV and three lines of text. Write two documents
+for what we have built:
+
+- README.md - what this tool does, how to run it, and what decisions you made
+  while building it. Be specific about how you averaged each kind of column and
+  what you did with missing data.
+
+- ARCHITECTURE.md - how the pieces fit together. Include a diagram, drawn in
+  plain text, showing how the data flows from the CSV through to the plots, the
+  notes file and the Word report.
 ```
 
 **Have File Explorer visible.** They watch the tree fill: `app.py`,
-`README.md`, `notes.json`, the `.docx` — from one CSV and three lines of text.
+`README.md`, `ARCHITECTURE.md`, `notes.json`, the `.docx` — from one CSV and
+three lines of text.
 
-That last clause is doing the real work: it makes the tool **state its own
-judgement calls in writing**, as the closing artifact. Read two of them out
-loud. That is the lecture's thesis, in the tool's own words, on screen, at the
-end.
+Two things are doing the real work here.
+
+**The README's last clause** makes the tool **state its own judgement calls in
+writing**, as the closing artifact. Read two of them out loud — that is the
+lecture's thesis, in the tool's own words. It is asked for first deliberately:
+if you run out of time mid-generation, that is the document you want.
+
+**The ARCHITECTURE diagram** is the visual payoff. Ask for it *in plain text* —
+without that, you get prose paragraphs, which on a projector look like any
+other wall of words. An ASCII data-flow diagram reads from the back row and is
+the last thing they see.
+
+> If the README is vague about decisions, push once: *"be specific about how you
+> averaged each kind of column."* That reliably produces the four calls from B2.
 
 ---
 
