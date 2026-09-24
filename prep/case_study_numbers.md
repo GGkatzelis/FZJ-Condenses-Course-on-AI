@@ -20,6 +20,56 @@ if you quote the label-based centroid instead, a *perfectly aligned* series look
 
 ---
 
+## ⭐ `slide18_radiation_before_after.png` — use this one
+
+Added 2026-09-24 at Georgios' request, and it supersedes panels (a) and (c) for
+presentation purposes. One figure: solar geometry, the met as delivered, and the
+same met shifted back an hour, with both centroids marked and the gap shaded.
+
+| | centroid | vs sun |
+|---|---|---|
+| solar geometry | **11:42** | — |
+| met as delivered | **12:41** | **+59 min** |
+| met shifted back 1 h | **11:41** | **−1 min** |
+
+### Why the old panel (a) was not usable
+
+Georgios looked at it and said the solar-noon line appeared to sit *on* the
+peak. He was right, and the figure was the problem, not the data. The
+campaign-mean radiation profile is a **flat-topped plateau** — 11:00 to 14:00
+varies by under 3 %, and 12:00 and 12:30 are exactly tied at 139.3169 because of
+the met duplication. A one-hour shift of a plateau that flat is invisible, and
+the +59 min is a property of the **centroid**, which the old figure never drew.
+It asserted the error in a text box while showing apparent agreement.
+
+The new figure fixes that by comparing two *curves* rather than a curve and a
+line, and by drawing both centroids.
+
+### ⚠️ A convention bug found while building it
+
+The first version of the combined figure read **+44 min** instead of +59. Cause:
+`centroid_of()` adds `BIN_MID` (+15 min) because the radiation values are **bin
+means** whose label sits 15 min before the bin centre. The solar geometry is an
+**instantaneous** function evaluated *at* the label, so it is already on true
+time and must not get that correction. Applying it to both cancelled 15 of the
+59 minutes. Fixed; the geometry centroid now prints as 11:42, matching true
+solar noon exactly, which is the check that confirms it.
+
+### If a student asks why the corrected curve sits above the sun in the morning
+
+It does, and it is real, not a residual timing error:
+
+| | radiation / geometry |
+|---|---|
+| morning 06:00–11:30 | **1.069** |
+| afternoon 11:30–18:00 | **0.729** |
+
+Afternoons were cloudier than mornings over this campaign. Total energy is
+nearly balanced — 946 J/cm² morning against 912 afternoon — which is exactly why
+the centroid still lands at −1 min despite the visible limb asymmetry.
+
+---
+
 ## Panel (a) — `slide18a_radiation_uncorrected.png`
 
 Mean diurnal of `met_Global_Radiation (J/cm2)` against the 30-minute label.

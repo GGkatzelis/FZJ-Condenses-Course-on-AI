@@ -301,34 +301,128 @@ def fmt(h):
     return f"{int(h):02d}:{round((h % 1) * 60):02d}"
 
 
+# Mean solar-geometry profile, for overlay.
+#
+# NOTE ON THE CONVENTION, because getting this wrong cost a wrong number once:
+# the radiation values are BIN MEANS whose label sits 15 min before the bin
+# centre, so their centroid needs +BIN_MID (that is what centroid_of does).
+# The geometry is an INSTANTANEOUS function evaluated AT the label, so it is
+# already on true time and must NOT get that correction. Applying it to both
+# made the gap read +44 min instead of the correct +59.
+geo_prof = pd.Series(np.cos(np.deg2rad(solar_zenith(t))).clip(min=0),
+                     index=hlab).groupby(level=0).mean()
+_gw = geo_prof.clip(lower=0)
+geo_centroid = float((geo_prof.index * _gw).sum() / _gw.sum())   # no BIN_MID
+print(f"  solar-geometry centroid {fmt(geo_centroid)}  "
+      f"(true solar noon {fmt(noon_h)})")
+
+
 def rad_panel(profile, title, note, fname, mark_correct=False):
+    """Radiation diurnal against solar geometry.
+
+    The earlier version drew only a solar-noon line and the peak label. That was
+    honest in its numbers and misleading in its picture: the campaign-mean
+    radiation profile is a flat-topped plateau (11:00-14:00 varies by <3 %), so a
+    one-hour shift is invisible to the eye and the noon line appeared to sit ON
+    the peak. The lag is a property of the CENTROID, not of the peak, so the
+    centroid is now drawn. The geometry curve is overlaid for the same reason:
+    comparing two curves shows an offset that comparing a curve to a line does
+    not.
+    """
     fig, ax = plt.subplots(figsize=SIZE)
     fig.patch.set_facecolor(CREAM)
     ax.set_facecolor(CREAM)
     col = GREEN if mark_correct else ORANGE
-    ax.step(profile.index, profile.values, where="post", color=col, lw=2.8)
-    ax.fill_between(profile.index, 0, profile.values, step="post", color=col, alpha=.15)
-    ax.axvline(SOLAR_NOON_SLIDE, color=NAVY, lw=2.2, ls="--")
-    # sit the rotated label well below the crown so it cannot collide with the
-    # peak annotation, which lands near the top of the profile
-    ax.text(SOLAR_NOON_SLIDE - .28, ax.get_ylim()[1] * .58, "solar noon 11:40 UTC",
-            color=NAVY, rotation=90, va="top", ha="right", fontsize=13.5,
+    cen = centroid_of(profile)
+
+    # solar geometry, scaled to the radiation peak so the shapes are comparable
+    geo = geo_prof / geo_prof.max() * profile.max()
+    ax.plot(geo.index, geo.values, color=NAVY, lw=2.4, alpha=.85,
+            label="solar geometry  (cos SZA, scaled)")
+    ax.step(profile.index, profile.values, where="post", color=col, lw=2.8,
+            label="measured global radiation")
+    ax.fill_between(profile.index, 0, profile.values, step="post", color=col,
+                    alpha=.13)
+
+    top = profile.max() * 1.18
+    ax.set_ylim(0, top)
+
+    # the two centroids, and the gap between them - this is the actual claim
+    gap = (cen - geo_centroid) * 60
+    ax.axvline(geo_centroid, color=NAVY, lw=2.2, ls="--")
+    ax.axvline(cen, color=col, lw=2.2, ls="--")
+    ax.axvspan(min(geo_centroid, cen), max(geo_centroid, cen),
+               color=col if abs(gap) > 5 else GREEN, alpha=.18, lw=0)
+    y = top * .93
+    ax.annotate("", xy=(cen, y), xytext=(geo_centroid, y),
+                arrowprops=dict(arrowstyle="<->", color="#40454A", lw=1.8))
+    ax.text((geo_centroid + cen) / 2, top * .955,
+            f"{gap:+.0f} min" if abs(gap) > 5 else f"aligned ({gap:+.0f} min)",
+            ha="center", va="bottom", fontsize=15, fontweight="bold",
+            color=col if abs(gap) > 5 else GREEN)
+
+    ax.text(geo_centroid - .12, top * .40, f"sun  {fmt(geo_centroid)}",
+            color=NAVY, rotation=90, va="center", ha="right", fontsize=13,
             fontweight="bold")
-    pk = float(profile.idxmax())
-    ax.plot([pk], [profile.max()], marker="v", ms=13, color=col, zorder=5,
-            clip_on=False)
-    ax.annotate(f"peak label {fmt(pk)}", (pk, profile.max()),
-                textcoords="offset points", xytext=(16, -16), color=col,
-                fontsize=14, fontweight="bold", va="top", ha="left")
-    ax.set_xlabel("label on the 30-minute grid  (hour)")
+    ax.text(cen + .12, top * .40, f"data  {fmt(cen)}",
+            color=col, rotation=90, va="center", ha="left", fontsize=13,
+            fontweight="bold")
+
+    ax.set_xlabel("time of day  (hour)")
     ax.set_ylabel("global radiation  (J/cm²)")
     ax.set_title(title)
-    ax.set_xticks(range(0, 25, 3))
-    ax.set_xlim(0, 24)
-    ax.set_ylim(bottom=0)
-    ax.text(.02, .97, note, transform=ax.transAxes, va="top", ha="left",
-            fontsize=13.5, color="#40454A", linespacing=1.5, family="monospace",
+    ax.set_xticks(range(4, 21, 2))
+    ax.set_xlim(4, 20)
+    ax.legend(loc="upper left", fontsize=12.5, framealpha=.9)
+    ax.text(.985, .97, note, transform=ax.transAxes, va="top", ha="right",
+            fontsize=13, color="#40454A", linespacing=1.5, family="monospace",
             bbox=dict(boxstyle="round,pad=0.5", fc="white", ec="#D5D8DC", alpha=.9))
+    save(fig, fname)
+
+
+def rad_panel_both(prof_raw, prof_fixed, fname):
+    """The error and the fix in one figure: geometry, the misaligned data, and
+    the same data after the -1 h shift, with both centroids marked."""
+    fig, ax = plt.subplots(figsize=SIZE)
+    fig.patch.set_facecolor(CREAM)
+    ax.set_facecolor(CREAM)
+
+    top = max(prof_raw.max(), prof_fixed.max()) * 1.22
+    geo = geo_prof / geo_prof.max() * max(prof_raw.max(), prof_fixed.max())
+    ax.plot(geo.index, geo.values, color=NAVY, lw=2.6, alpha=.9,
+            label="solar geometry  (cos SZA, scaled)")
+    ax.step(prof_raw.index, prof_raw.values, where="post", color=ORANGE, lw=2.8,
+            label="met as delivered")
+    ax.step(prof_fixed.index, prof_fixed.values, where="post", color=GREEN,
+            lw=2.8, ls=(0, (5, 2)), label="met shifted back 1 h")
+
+    c_raw, c_fix = centroid_of(prof_raw), centroid_of(prof_fixed)
+    for c, colr in ((geo_centroid, NAVY), (c_raw, ORANGE), (c_fix, GREEN)):
+        ax.axvline(c, color=colr, lw=2.0, ls="--", alpha=.9)
+    ax.axvspan(geo_centroid, c_raw, color=ORANGE, alpha=.15, lw=0)
+
+    ax.set_ylim(0, top)
+    y = top * .78
+    ax.annotate("", xy=(c_raw, y), xytext=(geo_centroid, y),
+                arrowprops=dict(arrowstyle="<->", color=ORANGE, lw=2.0))
+    ax.text((geo_centroid + c_raw) / 2, top * .805,
+            f"{(c_raw - geo_centroid) * 60:+.0f} min", ha="center", va="bottom",
+            fontsize=16, fontweight="bold", color=ORANGE)
+    # centroid times in a compact box - drawn under the axis they overlapped
+    ax.text(.985, .97,
+            f"{'sun':<14}{fmt(geo_centroid)}\n"
+            f"{'as delivered':<14}{fmt(c_raw)}   {(c_raw - geo_centroid) * 60:+.0f} min\n"
+            f"{'corrected':<14}{fmt(c_fix)}   {(c_fix - geo_centroid) * 60:+.0f} min",
+            transform=ax.transAxes, va="top", ha="right", fontsize=13,
+            family="monospace", color="#40454A", linespacing=1.55,
+            bbox=dict(boxstyle="round,pad=0.5", fc="white", ec="#D5D8DC", alpha=.92))
+
+    ax.set_xlabel("time of day  (hour)")
+    ax.set_ylabel("global radiation  (J/cm²)")
+    ax.set_title("One hour late, and the same data after the shift")
+    ax.set_xticks(range(4, 21, 2))
+    ax.set_xlim(4, 20)
+    ax.legend(loc="upper left", fontsize=12.5, framealpha=.9)
     save(fig, fname)
 
 
@@ -396,6 +490,9 @@ rad_panel(rad_prof_c,
           f"{'true solar noon':<20}{fmt(noon_h)}\n"
           f"{'residual':<20}{lag_c * 60:+.0f} min",
           "slide21c_radiation_corrected.png", mark_correct=True)
+
+# the error and the fix in a single figure - Georgios' preferred version
+rad_panel_both(rad_prof, rad_prof_c, "slide18_radiation_before_after.png")
 
 N["case_study"] = {
     "period": f"{t.iloc[0]} .. {t.iloc[-1]} (full campaign, original file)",
