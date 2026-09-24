@@ -301,6 +301,33 @@ def fmt(h):
     return f"{int(h):02d}:{round((h % 1) * 60):02d}"
 
 
+def smooth(profile, n=400):
+    """Smooth presentation curve for a duplicated hourly met profile.
+
+    The met values are hourly, written into BOTH half-hour bins, which is why a
+    step plot looks like one-hour blocks. For a slide we want a curve, so:
+      * de-duplicate to the hourly values (the h:00 labels), and
+      * place each at the centre of the hour it actually occupies, label + 0.5 h.
+
+    That placement is not cosmetic - it keeps the picture consistent with the
+    arithmetic. The de-duplicated centroid plus 30 min equals the full-grid
+    bin-centre centroid exactly (12:11 + 0:30 = 12:41), so the smooth curve and
+    the centroid lines describe the same series.
+
+    PCHIP rather than a cubic spline: it is shape-preserving, so it will not
+    overshoot into negative radiation at dawn and dusk.
+    """
+    from scipy.interpolate import PchipInterpolator
+
+    hourly = profile[[float(i).is_integer() for i in profile.index]]
+    x = np.asarray(hourly.index, dtype=float) + 0.5
+    y = np.asarray(hourly.values, dtype=float)
+    ok = np.isfinite(y)
+    x, y = x[ok], y[ok]
+    xs = np.linspace(x.min(), x.max(), n)
+    return xs, PchipInterpolator(x, y)(xs).clip(min=0)
+
+
 # Mean solar-geometry profile, for overlay.
 #
 # NOTE ON THE CONVENTION, because getting this wrong cost a wrong number once:
@@ -339,10 +366,9 @@ def rad_panel(profile, title, note, fname, mark_correct=False):
     geo = geo_prof / geo_prof.max() * profile.max()
     ax.plot(geo.index, geo.values, color=NAVY, lw=2.4, alpha=.85,
             label="solar geometry  (cos SZA, scaled)")
-    ax.step(profile.index, profile.values, where="post", color=col, lw=2.8,
-            label="measured global radiation")
-    ax.fill_between(profile.index, 0, profile.values, step="post", color=col,
-                    alpha=.13)
+    xs, ys = smooth(profile)
+    ax.plot(xs, ys, color=col, lw=3.0, label="measured global radiation")
+    ax.fill_between(xs, 0, ys, color=col, alpha=.13)
 
     top = profile.max() * 1.18
     ax.set_ylim(0, top)
@@ -391,10 +417,12 @@ def rad_panel_both(prof_raw, prof_fixed, fname):
     geo = geo_prof / geo_prof.max() * max(prof_raw.max(), prof_fixed.max())
     ax.plot(geo.index, geo.values, color=NAVY, lw=2.6, alpha=.9,
             label="solar geometry  (cos SZA, scaled)")
-    ax.step(prof_raw.index, prof_raw.values, where="post", color=ORANGE, lw=2.8,
-            label="met as delivered")
-    ax.step(prof_fixed.index, prof_fixed.values, where="post", color=GREEN,
-            lw=2.8, ls=(0, (5, 2)), label="met shifted back 1 h")
+    xr, yr = smooth(prof_raw)
+    xf, yf = smooth(prof_fixed)
+    ax.plot(xr, yr, color=ORANGE, lw=3.0, label="met as delivered")
+    ax.fill_between(xr, 0, yr, color=ORANGE, alpha=.10)
+    ax.plot(xf, yf, color=GREEN, lw=3.0, ls=(0, (6, 2.5)),
+            label="met shifted back 1 h")
 
     c_raw, c_fix = centroid_of(prof_raw), centroid_of(prof_fixed)
     for c, colr in ((geo_centroid, NAVY), (c_raw, ORANGE), (c_fix, GREEN)):
