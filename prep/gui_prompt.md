@@ -18,7 +18,7 @@ which is what you should actually paste from — are in
 |---|---|---|
 | 1 · the audit | A | 12 min |
 | 2 · the GUI: list + two plots | B | 8 min |
-| **3a · correlations** | **C** | **8 min for both** |
+| **3a · correlation explorer** | **C** | **12 min for both** |
 | **3b · notes** | **C** | |
 | 4 · the Word report | D | 4 min |
 | 5 · the reveal | E | 4 min |
@@ -89,20 +89,30 @@ for, no extra features.
 
 ---
 
-## Block 3a · correlations
+## Block 3a · the correlation explorer
 
-```
-Add a separate panel where I can choose any two series and see them plotted
-against each other, coloured by hour of day, with the correlation coefficient
-and the number of points.
+The most ambitious build in the demo. Paste it verbatim from
+[`gui_prompt.txt`](gui_prompt.txt) — it asks for a ranked bar chart and table of
+the twenty strongest correlations on the left, and a fitted scatter with full
+statistics on the right, driven by selecting a table row.
 
-Keep it minimal - no extra features.
-```
+**Selection is by table row, not by clicking a bar.** `st.dataframe(on_select=
+"rerun", selection_mode="single-row")` is robust; reading back which *bar* was
+clicked from Plotly's selection payload is the fiddliest part of that API and
+not worth two or three correction rounds on stage. If it goes smoothly you can
+ask for bar-clicking as a bonus.
 
-Put benzene against monoterpenes — **r = 0.86** — and ask whether they share a
-source. They do not: 0.95 at night against 0.50 at midday, and both
-anticorrelated with wind speed. Shared dilution, not shared chemistry. Full
-numbers and the decisive temperature test in `prompt_script.md` C1.
+**Demo `gas_NO`, not toluene.** Measured on this file:
+
+| compound picked | what the top 20 looks like |
+|---|---|
+| **`gas_NO`** | NOX 0.88, **D5 siloxane 0.70**, eBCff 0.69, toluene 0.68, eBCwb 0.66, CO 0.66 — a recognisable traffic cluster, every label meaningful |
+| **toluene** | all twenty are other PTR ions from the same instrument; `C7H8` at **0.989** is essentially the same molecule, then alkyl fragments. Twenty bars between 0.93 and 0.99, not one recognisable name |
+
+The toluene case is the punchline, not a failure — see `prompt_script.md` C1.
+
+Compute is not a concern: ranking one compound against all 880 series takes
+**0.2 s**. Switching compound re-renders in about **4.6 s**.
 
 ## Block 3b · notes
 

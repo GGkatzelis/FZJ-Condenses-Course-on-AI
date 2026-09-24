@@ -1,7 +1,7 @@
 # Day-of checklist — Thursday 24 September 2026, 13:45–15:15
 
 FZJ / Cologne–Wuppertal summer school · ~20 MSc and early-PhD students
-Demo budget: 32 min inside the 90-min lecture.
+Demo budget: 40 min inside the 90-min lecture (confirmed 2026-09-24).
 
 ---
 
@@ -219,10 +219,12 @@ workflow you cannot check"*.
 2. **The audit is the centrepiece now, not a trap.** Segment A carries the
    lecture. Give it its full 12 minutes and do not fill the silence while it
    profiles 881 columns.
-3. **No droppable segment any more.** 36 min against a 32 min budget. The cut
-   order is inside the segments — see "What to protect" above. Decide before
-   you start whether you have 36 minutes; if not, cut ARCHITECTURE.md now
-   rather than improvising at minute 30.
+3. **No droppable segment any more.** 40 min, which is the agreed budget, but
+   with nothing whole left to cut. The cut order is inside the segments — see
+   "What to protect" above.
+4. **Block 3a is the most ambitious build.** A ranked bar chart, a selectable
+   table and a linked fitted scatter. If it stalls, jump to
+   `stage-3a-correlations` rather than debugging live.
 4. **The `n_met` moment may not fire** on the trimmed file — 2 + 2 rows is a
    weak signal. Have the fallback line ready; see `prompt_script.md` A3.
 4. **Getting wind direction on screen** still matters for B2, since the four

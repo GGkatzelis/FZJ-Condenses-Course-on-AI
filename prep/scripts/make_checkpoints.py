@@ -134,7 +134,12 @@ if not (CK / ".git").exists():
     sys.exit("prep/checkpoints is not a git repo")
 
 for idx, (branch, keep, with_notes, circular, msg) in enumerate(STAGES):
-    git("checkout", "-q", "-B" if idx == 0 else "-b", branch, check=False)
+    # -B for EVERY stage, not -b after the first. `-b` fails when the branch
+    # already exists, and with check=False that failure was swallowed, so every
+    # later stage committed onto whichever branch was still checked out. -B
+    # force-creates-or-resets at the current HEAD, which is exactly the linear
+    # history we want, and it is idempotent across re-runs.
+    git("checkout", "-q", "-B", branch)
 
     for stale in ("app.py", "ARCHITECTURE.md"):
         (CK / stale).unlink(missing_ok=True)
@@ -153,9 +158,21 @@ for idx, (branch, keep, with_notes, circular, msg) in enumerate(STAGES):
     git("add", "-A")
     r = git("commit", "-q", "-m", f"{branch}: {msg}", check=False)
     state = "committed" if r.returncode == 0 else (r.stdout.strip() or "no change")
-    print(f"{branch:22s} {state:12s} tabs: {', '.join(keep) or '(none)'}"
-          f"{'  [notes]' if with_notes else ''}"
-          f"{'  [vector wind]' if circular else ''}")
+
+    # Verify what actually landed, not what was intended. The old version
+    # printed `keep` - the intent - which hid the branch bug above completely.
+    on_disk = (CK / "app.py").read_text(encoding="utf-8")
+    got_tabs = on_disk.count("with tab_")
+    got_notes = "note_ts" in on_disk
+    got_wind = "CIRCULAR_WIND = True" in on_disk
+    ok = (got_tabs == len(keep) and got_notes == with_notes
+          and got_wind == circular)
+    print(f"{branch:22s} {state:12s} {'OK ' if ok else '!! '}"
+          f"tabs={got_tabs}/{len(keep)} "
+          f"lines={len(on_disk.splitlines()):4d} "
+          f"notes={got_notes} wind={got_wind}")
+    if not ok:
+        sys.exit(f"{branch}: built content does not match the stage definition")
 
 print("\nbranches:")
 print(git("branch", "--format=  %(refname:short)").stdout.rstrip())

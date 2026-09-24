@@ -27,20 +27,24 @@ Nothing about units, instrument, site, columns or time zone.
 |---|---|---|---|
 | **A · the audit** | 1 | **12 min** | its findings on screen, including one you didn't know |
 | **B · the GUI** | 2 | 8 min | working browser, **the four judgement calls** |
-| **C · correlations + notes** | 3a, 3b | **8 min** | the room's own argument about r = 0.86, in `notes.json` |
+| **C · correlation explorer + notes** | 3a, 3b | **12 min** | a ranked correlation explorer, and the room's own argument in `notes.json` |
 | D · Word report | 4 | 4 min | the .docx, provenance open |
 | **E · the reveal** | 5 | 4 min | **README.md + ARCHITECTURE.md + the folder tree — the finale** |
 
-**36 min total.** Correlations and notes were merged deliberately: a correlation
-gives the room something genuinely arguable to write down, where a timeseries
-mostly answers itself.
+**40 min total**, which Georgios confirmed is within the lecture. Correlations
+and notes are merged deliberately: a correlation gives the room something
+genuinely arguable to write down, where a timeseries mostly answers itself.
 
-> ⚠️ **That merge removed the droppable segment.** There is no longer a whole
-> beat to cut if you run over — the cut order is now *inside* the segments, and
-> it is written out at the end of `gui_prompt.txt`: drop `ARCHITECTURE.md`
-> (~1.5 min), then take one audience note instead of three (~2 min), then skip
-> the B1 menu and pick option 1 yourself (~2 min). That gets you to ~30 min.
-> **Never cut** block 1, the correlation argument in 3a, or the README.
+> ⚠️ **No droppable segment.** Merging correlations into notes removed the
+> designed casualty, so the cut order is *inside* the segments and is written at
+> the end of `gui_prompt.txt`: drop `ARCHITECTURE.md` (~1.5 min), take one
+> audience note instead of three (~2 min), skip the B1 menu (~2 min). That gets
+> 40 down to about 34. **Never cut** block 1, the correlation argument in 3a, or
+> the README.
+>
+> Block 3a is now the most ambitious build in the demo. If it stalls, fall back
+> to `stage-3a-correlations` rather than debugging live — the explorer is
+> already built on that branch.
 
 **Build step by step, one block per segment.** Watching it correctly modify code
 it wrote ten minutes ago is the moment the penny drops for an audience that has
@@ -200,12 +204,53 @@ Now turn it:
 
 ---
 
-## Segment C · correlations + notes · 8 min
+## Segment C · correlation explorer + notes · 12 min
 
 **Two pastes, one segment.** Correlations first, so the room has something worth
 arguing about before you ask them to write anything down.
 
-### C1 — paste block 3a, the correlation panel
+### C1 — paste block 3a, the correlation explorer
+
+This is the biggest single build in the demo: a ranked bar chart and table of
+the twenty strongest correlations on the left, a fitted scatter with statistics
+on the right, linked by selecting a table row.
+
+**Order of play matters here.** Three things, in this order:
+
+#### 1. `gas_NO` — the one that impresses
+
+Type "NO" in the compound box. The top of the ranking:
+
+| | r |
+|---|---|
+| `gas_NOX` | 0.880 |
+| **D5 siloxane** `NH4_C10H31O5Si5+` | **0.702** |
+| `gas_eBCff` | 0.693 |
+| toluene | 0.677 |
+| `gas_eBCwb` | 0.664 |
+| `gas_CO` | 0.663 |
+
+A recognisable traffic-emissions cluster, and every label means something to
+this audience. Selecting NOX gives slope **1.189**, intercept **8.589**,
+r **0.880**, R² **0.775**, n **1333**.
+
+> ⚠️ **A warning fires on that first pair, unprompted:** Pearson 0.880 against
+> Spearman **0.626**. NO is heavily right-skewed, so Pearson rides on a handful
+> of traffic spikes while Spearman reflects the typical ordering. It is a good
+> moment — but it arrives on its own, so do not be caught by it.
+
+#### 2. toluene — the punchline
+
+Switch the compound to toluene (type `C7H9`). **All twenty** are other PTR ions
+from the same instrument: `H3O_C7H8+` at **0.989** is essentially the same
+molecule, then `C5H11`, `C4H9`, `C6H13` — alkyl fragments. Twenty bars between
+0.93 and 0.99 and not one name anybody recognises.
+
+> **"Rank everything by correlation and the top twenty are my own instrument
+> measuring pieces of the same molecule. That 0.99 is telling me about the
+> spectrometer, not the atmosphere."**
+
+#### 3. benzene vs monoterpenes — the note-worthy science
 
 Then put **benzene (`H3O_C6H7+`) against monoterpenes (`H3O_C10H17+`)** and ask:
 

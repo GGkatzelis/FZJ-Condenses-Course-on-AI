@@ -51,20 +51,48 @@ for, no extra features.
 
 
 ================================================================
-BLOCK 3a - CORRELATIONS                    segment C, 8 min total
+BLOCK 3a - CORRELATION EXPLORER           segment C, 12 min total
 ================================================================
 
-Add a separate panel where I can choose any two series and see them plotted
-against each other, coloured by hour of day, with the correlation coefficient
-and the number of points.
+Add a correlation panel. I pick one compound, and you rank every other series
+in the dataset by how strongly it correlates with it.
+
+- On the left, the twenty strongest correlations: a horizontal bar chart of
+  Pearson r, and a table of the same twenty showing r and R squared. Let me
+  select a row of that table.
+
+- On the right, the pair I have selected: a scatter plot coloured by hour of
+  day, with a least-squares fit line drawn on it, and the statistics printed -
+  slope, intercept, Pearson r, R squared, Spearman, and n.
+
+Let me search all the series when choosing the compound, not just the ones
+filtered in the sidebar.
 
 Keep it minimal - no extra features.
 
-  -> put benzene (H3O_C6H7+) against monoterpenes (H3O_C10H17+). r = 0.86.
-     Then ask the room: DO THESE SHARE A SOURCE?
-     They do not. 0.95 at night against 0.50 at midday, and both anticorrelate
-     with wind speed. That is shared dilution, not shared chemistry.
-     THIS is the argument worth writing down. Hold it for 3b.
+  -> DEMO gas_NO, not toluene. Type "NO" in the compound box.
+     Top hits: NOX 0.88, then D5 siloxane 0.70, eBCff 0.69, toluene 0.68,
+     eBCwb 0.66, CO 0.66 - a recognisable traffic-emissions cluster, and every
+     label means something to this audience.
+
+     EXPECT A WARNING on the first pair (NO vs NOX): Pearson 0.880 against
+     Spearman 0.626. NO is heavily right-skewed, so Pearson rides on a few
+     traffic spikes while Spearman reflects the typical ordering. Good moment,
+     but it arrives unprompted so be ready for it.
+
+  -> THEN switch the compound to toluene (type C7H9) for the punchline.
+     All twenty are other PTR ions from the same instrument: C7H8 at 0.989 is
+     essentially the same molecule, then C5H11, C4H9, C6H13 - alkyl fragments.
+     Twenty bars between 0.93 and 0.99 and not one recognisable name. Say:
+
+       "Rank everything by correlation and the top twenty are my own
+        instrument measuring pieces of the same molecule. That 0.99 is
+        telling me about the spectrometer, not the atmosphere."
+
+  -> AND the note-worthy science: benzene (C6H7) vs monoterpenes (C10H17),
+     r = 0.86. Do they share a source? No - 0.95 at night against 0.50 at
+     midday, and both anticorrelate with wind speed. Shared dilution, not
+     shared chemistry. THAT is the argument to write down in 3b.
 
 
 ================================================================
