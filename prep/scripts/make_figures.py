@@ -374,9 +374,9 @@ def rad_panel(profile, title, note, fname, mark_correct=False):
     ax.set_xticks(range(4, 21, 2))
     ax.set_xlim(4, 20)
     ax.legend(loc="upper left", fontsize=12.5, framealpha=.9)
-    ax.text(.985, .97, note, transform=ax.transAxes, va="top", ha="right",
-            fontsize=13, color="#40454A", linespacing=1.5, family="monospace",
-            bbox=dict(boxstyle="round,pad=0.5", fc="white", ec="#D5D8DC", alpha=.9))
+    # `note` is deliberately not drawn: the centroid lines, their labels and the
+    # gap arrow already carry those three numbers, and a white box sat on top of
+    # the curve. Kept as a parameter so the values stay in case_study_numbers.md.
     save(fig, fname)
 
 
@@ -408,14 +408,16 @@ def rad_panel_both(prof_raw, prof_fixed, fname):
     ax.text((geo_centroid + c_raw) / 2, top * .805,
             f"{(c_raw - geo_centroid) * 60:+.0f} min", ha="center", va="bottom",
             fontsize=16, fontweight="bold", color=ORANGE)
-    # centroid times in a compact box - drawn under the axis they overlapped
-    ax.text(.985, .97,
-            f"{'sun':<14}{fmt(geo_centroid)}\n"
-            f"{'as delivered':<14}{fmt(c_raw)}   {(c_raw - geo_centroid) * 60:+.0f} min\n"
-            f"{'corrected':<14}{fmt(c_fix)}   {(c_fix - geo_centroid) * 60:+.0f} min",
-            transform=ax.transAxes, va="top", ha="right", fontsize=13,
-            family="monospace", color="#40454A", linespacing=1.55,
-            bbox=dict(boxstyle="round,pad=0.5", fc="white", ec="#D5D8DC", alpha=.92))
+    # Labels go on the lines themselves - no white box, which covered the curve
+    # and repeated what the lines already show. The sun and the corrected
+    # centroid are 1 min apart, so their lines coincide and share one label.
+    ax.text(geo_centroid - .16, top * .42,
+            f"sun {fmt(geo_centroid)}  ·  corrected {fmt(c_fix)}",
+            color=NAVY, rotation=90, va="center", ha="right", fontsize=13,
+            fontweight="bold")
+    ax.text(c_raw + .16, top * .42, f"as delivered {fmt(c_raw)}",
+            color=ORANGE, rotation=90, va="center", ha="left", fontsize=13,
+            fontweight="bold")
 
     ax.set_xlabel("time of day  (hour)")
     ax.set_ylabel("global radiation  (J/cm²)")
