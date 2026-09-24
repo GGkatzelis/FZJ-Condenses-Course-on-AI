@@ -96,7 +96,7 @@ Keep it minimal - no extra features.
 
 
 ================================================================
-BLOCK 3b - NOTES                              segment C, same 8 min
+BLOCK 3b - NOTES                             segment C, same 12 min
 ================================================================
 
 Add a box where I can type a note about whatever I am currently looking at,
@@ -159,15 +159,25 @@ for what we have built:
 IF YOU ARE RUNNING OVER - cut in this order
 ================================================================
 
-Merging correlations into the notes segment removed the designed casualty, so
-there is no longer a whole segment to drop. Cut in this order instead:
+Budget: 12 + 8 + 12 + 4 + 4 = 40 min, which is the agreed slot. Merging
+correlations into the notes segment removed the designed casualty, so there is
+no longer a whole segment to drop. Cut in this order instead:
 
   1. ARCHITECTURE.md in block 5 - ask for README.md only.        saves ~1.5 min
   2. Take one audience note in 3b instead of two or three.       saves ~2 min
   3. Skip the B1 menu - pick option 1 (toluene + gas_NO) yourself. saves ~2 min
+  4. In 3a, skip the toluene punchline and keep only gas_NO.     saves ~2 min
 
-Never cut: block 1 (the audit is the point), the correlation argument in 3a,
-or the README.
+That takes 40 down to about 32.
+
+Never cut: block 1 (the audit is the point), the benzene/monoterpene argument
+in 3a, or the README.
+
+If block 3a itself stalls - it is the most ambitious build in the demo - do not
+debug it live. Switch to the prepared branch:
+
+  git -C ..\MONALISA_fallback checkout -q stage-3a-correlations
+  Copy-Item -Force ..\MONALISA_fallback\app.py .
 
 
 ================================================================
